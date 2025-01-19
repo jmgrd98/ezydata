@@ -1,21 +1,11 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
-import OpenAI from "openai";
+import { useRef, useState } from 'react';
 
 export default function Home() {
   const [tableData, setTableData] = useState<string[][] | null>(null);
   const [userInput, setUserInput] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const openai = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true,
-  });
-
-  useEffect(() => {
-    console.log("OpenAI initialized");
-  }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -45,118 +35,38 @@ export default function Home() {
     }
   
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          { role: "system", content: "You are an assistant specialized in Python and pandas." },
-          { role: "user", content: `Transform the following user request into a pandas command: "${userInput}"` },
-        ],
+      const csvData = tableData.map(row => row.join(",")).join("\n");
+      console.log("CSV Data:", csvData);
+      console.log("User Command:", userInput);
+  
+      const response = await fetch("http://localhost:8000/process-command/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
       });
   
-      let command = response.choices[0]?.message?.content;
-      console.log('COMMAND', command);
-  
-      if (!command) {
-        console.error("Failed to generate pandas command.");
-        return;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail);
       }
   
-      // Extract the actual Python command
-      const commandMatch = command.match(/```python\n([\s\S]*?)\n```/);
-      if (commandMatch) {
-        command = commandMatch[1].trim(); // Extract and clean the command
+      const result = await response.json();
+      console.log('RESULT', result);
+  
+      // Parse the data field to an object
+      const parsedData = JSON.parse(result.data);
+  
+      if (parsedData?.columns && parsedData?.data) {
+        const updatedTableData = parsedData;
+        setTableData([updatedTableData.columns, ...updatedTableData.data]);
       } else {
-        console.warn("No valid Python command block found.");
-        return;
+        throw new Error('Unexpected response format');
       }
   
-      // Interpret the command and apply it to the dataset
-      const newTableData = applyPandasCommandToTableData(command, tableData);
-      if (newTableData) {
-        setTableData(newTableData);
-      } else {
-        console.error("Failed to apply pandas command.");
-      }
     } catch (error) {
       console.error("Error generating pandas command:", error);
     }
   };
-  
-  
-  // Helper function to apply the pandas command to the table data
-  const applyPandasCommandToTableData = (command: string, tableData: string[][]): string[][] | null => {
-    try {
-      if (command.startsWith("df.head(")) {
-        // Extract the number of rows to display
-        const match = command.match(/df\.head\((\d+)\)/);
-        if (match) {
-          const numRows = parseInt(match[1], 10);
-          // Return the header and the first `numRows` rows
-          return tableData.slice(0, numRows + 1); // +1 to include the header row
-        }
-      } else if (command.includes("df[['")) {
-        // Column selection, e.g., df[['col1', 'col2']]
-        const columnMatch = command.match(/df\[\[['"](.+?)['"]\]\]/);
-        if (columnMatch) {
-          const selectedColumns = columnMatch[1].split("','");
-          const headers = tableData[0];
-          const columnIndices = selectedColumns.map(col => headers.indexOf(col)).filter(idx => idx >= 0);
-  
-          if (columnIndices.length > 0) {
-            return [
-              columnIndices.map(idx => headers[idx]),
-              ...tableData.slice(1).map(row => columnIndices.map(idx => row[idx])),
-            ];
-          }
-        }
-      } else if (command.includes("df[df['")) {
-        // Filtering rows, e.g., df[df['col'] > value]
-        const filterMatch = command.match(/df\[df\[['"](.+?)['"]\]\s*([<>=]+)\s*(.+?)\]/);
-        if (filterMatch) {
-          const [_, col, operator, value] = filterMatch;
-          const headers = tableData[0];
-          const colIndex = headers.indexOf(col);
-  
-          if (colIndex >= 0) {
-            const filteredRows = tableData.slice(1).filter(row => {
-              const cellValue = parseFloat(row[colIndex]);
-              const filterValue = parseFloat(value);
-              switch (operator) {
-                case '>': return cellValue > filterValue;
-                case '<': return cellValue < filterValue;
-                case '>=': return cellValue >= filterValue;
-                case '<=': return cellValue <= filterValue;
-                case '==': return cellValue === filterValue;
-                default: return false;
-              }
-            });
-            return [headers, ...filteredRows];
-          }
-        }
-      } else if (command.includes("df.sort_values(")) {
-        // Sorting, e.g., df.sort_values(by='col')
-        const sortMatch = command.match(/df\.sort_values\(by=['"](.+?)['"]\)/);
-        if (sortMatch) {
-          const [_, col] = sortMatch;
-          const headers = tableData[0];
-          const colIndex = headers.indexOf(col);
-  
-          if (colIndex >= 0) {
-            const sortedRows = [...tableData.slice(1)].sort((a, b) =>
-              a[colIndex].localeCompare(b[colIndex], undefined, { numeric: true })
-            );
-            return [headers, ...sortedRows];
-          }
-        }
-      }
-      console.warn("Unsupported pandas command.");
-      return null;
-    } catch (error) {
-      console.error("Error applying pandas command:", error);
-      return null;
-    }
-  };
-  
   
 
   return (
