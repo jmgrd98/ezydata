@@ -117,11 +117,12 @@ export default function Home() {
       } else {
         throw new Error('Unexpected response format');
       }
-    } catch (error: any) {
-      console.error("Error generating pandas command:", error);
+    } catch (error) {
+      const errorAsError = error as Error;
+      console.error("Error generating pandas command:", errorAsError);
       toast({
         title: "Error",
-        description: error.message || "An unexpected error occurred.",
+        description: errorAsError.message || "An unexpected error occurred.",
         duration: 5000,
       });
     } finally {
