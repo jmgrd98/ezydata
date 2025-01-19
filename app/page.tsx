@@ -8,6 +8,22 @@ import { useRef, useState } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from '@/hooks/use-toast';
 import { Loader } from '@/components/Loader/Loader';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Home() {
   const { toast } = useToast();
@@ -15,6 +31,8 @@ export default function Home() {
   const [tableData, setTableData] = useState<string[][] | null>(null);
   const [userInput, setUserInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [rowsPerPage, setRowsPerPage] = useState<number | 'all'>(10);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,6 +43,7 @@ export default function Home() {
         const text = await file.text();
         const rows = text.split('\n').map((row) => row.split(','));
         setTableData(rows);
+        setCurrentPage(1);
       } catch (error) {
         console.error('Error reading file:', error);
         setTableData(null);
@@ -101,12 +120,28 @@ export default function Home() {
   const handleClearTable = () => {
     setUserInput("");
     setTableData(null);
+    setCurrentPage(1);
   };
 
+  const totalPages = tableData
+    ? rowsPerPage === 'all'
+      ? 1
+      : Math.ceil((tableData.length - 1) / rowsPerPage)
+    : 0;
+
+  const paginatedData = tableData
+    ? rowsPerPage === 'all'
+      ? tableData.slice(1)
+      : tableData.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1)
+    : null;
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="flex flex-col items-center justify-center p-4">
       <Toaster />
-      <h1 className="text-2xl font-bold mb-4">Upload and Visualize CSV Data</h1>
+      <header className='w-full flex items-center justify-between'>
+        <p className='text-3xl font-bold'>AIDA</p>
+      </header>
+      <h1 className="text-2xl font-bold mb-4">You don't need to know how Python to explore your data.</h1>
 
       <Input
         type="file"
@@ -135,33 +170,76 @@ export default function Home() {
         <Button variant="destructive" onClick={handleClearTable}>
           Clear Table
         </Button>
+
+        <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Rows per page" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="5">5</SelectItem>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+            <SelectItem value="100">100</SelectItem>
+            <SelectItem value="all">All</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {loading ? (
         <Loader />
       ) : tableData ? (
-        <Table className="mt-4 w-full max-w-full table-auto border-collapse">
-          <TableHeader>
-            <TableRow>
-              {tableData[0].map((header, index) => (
-                <TableCell key={index} className="px-4 py-2 font-semibold bg-gray-200 text-center">
-                  {header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tableData.slice(1).map((row, rowIndex) => (
-              <TableRow key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <TableCell key={cellIndex} className="px-4 py-2 text-center">
-                    {cell}
+        <>
+          <Table className="mt-4 w-full max-w-full table-auto border-collapse">
+            <TableHeader>
+              <TableRow>
+                {tableData[0].map((header, index) => (
+                  <TableCell key={index} className="px-4 py-2 font-semibold bg-gray-200 text-center">
+                    {header}
                   </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {paginatedData?.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <TableCell key={cellIndex} className="px-4 py-2 text-center">
+                      {cell}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {rowsPerPage !== 'all' && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                    className='cursor-pointer'
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <PaginationItem key={index}>
+                    <PaginationLink
+                      href="#"
+                      onClick={() => setCurrentPage(index + 1)}
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                    className='cursor-pointer'
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </>
       ) : (
         <p className="text-gray-600 mt-4">No data to display. Please upload a CSV file.</p>
       )}
