@@ -24,11 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTranslation } from 'react-i18next';
-import { I18nextProvider } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from "@/translation";
 import Flag from 'react-world-flags';
-
 
 export default function Home() {
   const { toast } = useToast();
@@ -57,13 +55,13 @@ export default function Home() {
         setCurrentPage(1);
         setTimeout(() => setFadeIn(true), 100);
       } catch (error) {
-        console.error('Error reading file:', error);
+        console.error(t('error.readFile'), error);
         setTableData(null);
       } finally {
         setLoading(false);
       }
     } else {
-      console.error('Invalid file type. Only CSV files are allowed.');
+      console.error(t('error.invalidFileType'));
       setTableData(null);
     }
   };
@@ -75,8 +73,8 @@ export default function Home() {
   const handleGenerateCommand = async () => {
     if (!tableData) {
       toast({
-        title: "No dataset provided.",
-        description: "Please upload a CSV file.",
+        title: t('toast.noDatasetTitle'),
+        description: t('toast.noDatasetDesc'),
         duration: 5000,
       });
       return;
@@ -84,8 +82,8 @@ export default function Home() {
 
     if (!userInput) {
       toast({
-        title: "No prompt provided.",
-        description: "Please write a prompt.",
+        title: t('toast.noPromptTitle'),
+        description: t('toast.noPromptDesc'),
         duration: 5000,
       });
       return;
@@ -96,7 +94,7 @@ export default function Home() {
     try {
       const csvData = tableData.map(row => row.join(",")).join("\n");
 
-      const response = await fetch("http://localhost:8000/process-command/", {
+      const response = await fetch("https://aida-backend.onrender.com/process-command/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
@@ -115,7 +113,7 @@ export default function Home() {
         const updatedTableData = parsedData;
         setTableData([updatedTableData.columns, ...updatedTableData.data]);
       } else {
-        throw new Error('Unexpected response format');
+        throw new Error(t('error.unexpectedResponse'));
       }
     } catch (error) {
       const errorAsError = error as Error;
@@ -151,51 +149,50 @@ export default function Home() {
 
   return (
     <I18nextProvider i18n={i18n}>
-    <div className="flex flex-col items-center justify-center p-4 h-screen">
-      <Toaster />
-      <header className="w-full flex items-center justify-between">
-        <p className="text-3xl font-bold">AIDA</p>
-        <Select
-          onValueChange={(value) => changeLanguage(value)}
-          defaultValue={i18n.language}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="English" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="en">
-              <span className="flex items-center gap-2">
-                <Flag code="US" style={{ width: 20, height: 15 }} />
-                <span>English</span>
-              </span>
-            </SelectItem>
-            <SelectItem value="pt">
-              <span className="flex items-center gap-2">
-                <Flag code="BR" style={{ width: 20, height: 15 }} />
-                <span>Português</span>
-              </span>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </header>
+      <div className="flex flex-col items-center justify-center p-4 h-screen">
+        <Toaster />
+        <header className="w-full flex items-center justify-between">
+          <p className="text-3xl font-bold">AIDA</p>
+          <Select
+            onValueChange={(value) => changeLanguage(value)}
+            defaultValue={i18n.language}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder={t('language')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">
+                <span className="flex items-center gap-2">
+                  <Flag code="US" style={{ width: 20, height: 15 }} />
+                  <span>{t('English')}</span>
+                </span>
+              </SelectItem>
+              <SelectItem value="pt">
+                <span className="flex items-center gap-2">
+                  <Flag code="BR" style={{ width: 20, height: 15 }} />
+                  <span>{t('Português')}</span>
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </header>
 
+        <main className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto h-full max-h-screen">
+          <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
 
-      <main  className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto h-full max-h-screen">
-      <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
+          <Input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            ref={fileInputRef}
+            className="hidden"
+          />
 
-      <Input
-        type="file"
-        accept=".csv"
-        onChange={handleFileUpload}
-        ref={fileInputRef}
-        className="hidden"
-      />
+          <Button size="lg" onClick={triggerFileUpload}>
+            {t('upload')}
+          </Button>
 
-      <Button size={'lg'} onClick={triggerFileUpload}>
-        Upload dataset
-      </Button>
-
-      {tableData && (
+          {tableData && (
         <div
             className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
               fadeIn ? 'opacity-100' : 'opacity-0'
@@ -210,37 +207,36 @@ export default function Home() {
 
           <div className="flex items-center justify-center m-4 gap-4">
             <Button onClick={handleGenerateCommand}>
-              Generate pandas command
+              {t('generate')}
             </Button>
 
             <Button variant="destructive" onClick={handleClearTable}>
-              Clear Table
+              {t('clear')}
             </Button>
 
             <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Rows per page" />
+                <SelectValue placeholder={t('rowsPerPage')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="5">5</SelectItem>
                 <SelectItem value="10">10</SelectItem>
                 <SelectItem value="50">50</SelectItem>
                 <SelectItem value="100">100</SelectItem>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="all">{t('all')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
       )}
-      
 
       {loading ? (
         <Loader />
       ) : tableData ? (
-        <div className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
+        <div className={`h-[300px] text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
           fadeIn ? 'opacity-100' : 'opacity-0'
         }`}>
-          <Table className="mt-4 w-full max-w-full table-auto border-collapse">
+          <Table className="mt-4 w-full max-w-full table-auto border-collapse h-[300px]">
             <TableHeader>
               <TableRow>
                 {tableData[0].map((header, index) => (
@@ -322,8 +318,8 @@ export default function Home() {
         // <p className="text-gray-600 mt-4">No data to display. Please upload a CSV file.</p>
         <></>
       )}
-      </main>
-    </div>
+        </main>
+      </div>
     </I18nextProvider>
   );
 }
