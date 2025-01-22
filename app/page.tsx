@@ -92,7 +92,7 @@ export default function Home() {
       });
       return;
     }
-
+  
     if (!userInput) {
       toast({
         title: t('toast.noPromptTitle'),
@@ -101,45 +101,52 @@ export default function Home() {
       });
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
-      const csvData = tableData.map(row => row.join(",")).join("\n");
-
-      const response = await fetch("https://aida-backend.onrender.com/process-command/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const csvData = tableData.map((row) => row.join(',')).join('\n');
+  
+      const response = await fetch('https://aida-backend.onrender.com/process-command/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
       });
-
+  
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.detail);
       }
-
+  
       const result = await response.json();
-
       const parsedData = JSON.parse(result.data);
-
+  
       if (parsedData?.columns && parsedData?.data) {
-        const updatedTableData = parsedData;
-        setTableData([updatedTableData.columns, ...updatedTableData.data]);
+        const updatedTableData = [parsedData.columns, ...parsedData.data];
+        setTableData(updatedTableData);
       } else {
         throw new Error(t('error.unexpectedResponse'));
       }
-    } catch (error) {
-      const errorAsError = error as Error;
-      console.error("Error generating pandas command:", errorAsError);
-      toast({
-        title: "Error",
-        description: errorAsError.message || "An unexpected error occurred.",
-        duration: 5000,
-      });
+    } catch (error: unknown) {
+      console.error('Error generating pandas command:', error);
+      if (error instanceof Error) {
+        toast({
+          title: 'Error',
+          description: error.message || t('error.unexpected'),
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: String(error) || t('error.unexpected'),
+          duration: 5000,
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
+  
 
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
@@ -323,8 +330,11 @@ export default function Home() {
               setCurrentPage={setCurrentPage}
               toggleFullScreen={toggleFullScreen}
               isFullScreen={isFullScreen}
+              userInput={userInput}
+              setUserInput={setUserInput}
             />
           )}
+
         </main>
       </div>
     </I18nextProvider>
