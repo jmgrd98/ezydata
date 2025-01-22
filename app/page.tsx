@@ -27,6 +27,7 @@ import {
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from "@/translation";
 import Flag from 'react-world-flags';
+import FullScreenTableModal from '@/components/FullscreenTableModal/FullScreenTableModal';
 
 export default function Home() {
   const { toast } = useToast();
@@ -39,12 +40,21 @@ export default function Home() {
   const [rowsPerPage, setRowsPerPage] = useState<number | 'all'>(5);
   const [fadeIn, setFadeIn] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const [isFullScreen, setIsFullScreen] = useState(false);
 
-  const toggleFullScreen = () => {
-    setIsFullScreen((prev) => !prev);
-  };
+  const totalPages =
+    tableData && tableData.length > 0
+      ? rowsPerPage === 'all'
+        ? 1
+        : Math.ceil((tableData.length - 1) / rowsPerPage)
+      : 0;
+
+  const paginatedData =
+    rowsPerPage === 'all'
+      ? tableData?.slice(1)
+      : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
+
+  const toggleFullScreen = () => setIsFullScreen(!isFullScreen);
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -70,10 +80,6 @@ export default function Home() {
       console.error(t('error.invalidFileType'));
       setTableData(null);
     }
-  };
-
-  const triggerFileUpload = () => {
-    fileInputRef.current?.click();
   };
 
   const handleGenerateCommand = async () => {
@@ -134,24 +140,16 @@ export default function Home() {
     }
   };
 
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleClearTable = () => {
     setUserInput("");
     setTableData(null);
     setFadeIn(false);
     setCurrentPage(1);
   };
-
-  const totalPages = tableData
-    ? rowsPerPage === 'all'
-      ? 1
-      : Math.ceil((tableData.length - 1) / rowsPerPage)
-    : 0;
-
-  const paginatedData = tableData
-    ? rowsPerPage === 'all'
-      ? tableData.slice(1)
-      : tableData.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1)
-    : null;
 
   return (
     <I18nextProvider i18n={i18n}>
@@ -184,8 +182,7 @@ export default function Home() {
         </header>
 
         <main className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto h-full max-h-screen">
-          <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
-
+          <h1 className='text-2xl font-bold m-5'>{t('title')}</h1>
           <Input
             type="file"
             accept=".csv"
@@ -236,95 +233,93 @@ export default function Home() {
         </div>
       )}
 
-{loading ? (
-  <Loader />
-) : tableData ? (
-  <div
-    className={`${
-      isFullScreen ? "fixed inset-0 z-50 w-screen h-screen bg-white p-4 overflow-y-auto" : ""
-    } transition-opacity duration-700 ease-in-out relative`}
-  >
-    <Button onClick={toggleFullScreen} variant="secondary" className="mb-2">
-      {isFullScreen ? t('collapse') : t('expand')}
-    </Button>
-    <div
-      className={`${
-        isFullScreen
-          ? "w-full h-full overflow-y-auto"
-          : "relative max-h-[300px] overflow-y-scroll no-scrollbar"
-      }`}
-    >
-      <Table className="w-full table-auto border-collapse border border-grey-500">
-        <TableHeader>
-          <TableRow>
-            {tableData[0].map((header, index) => (
-              <TableCell
-                key={index}
-                className="px-4 py-2 font-semibold bg-gray-200 text-center"
-              >
-                {header}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedData?.map((row, rowIndex) => (
-            <TableRow key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <TableCell key={cellIndex} className="px-4 py-2 text-center">
-                  {cell}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-    {rowsPerPage !== "all" && (
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-              className="cursor-pointer"
+          {loading ? (
+            <Loader />
+          ) : tableData && !isFullScreen ? (
+            <>
+              <div className="relative max-h-[300px] overflow-y-scroll no-scrollbar">
+                <Button variant={'ghost'} onClick={toggleFullScreen}>Expand table</Button>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {tableData[0].map((header, index) => (
+                        <TableCell key={index} className="font-semibold">
+                          {header}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedData?.map((row, rowIndex) => (
+                      <TableRow key={rowIndex}>
+                        {row.map((cell, cellIndex) => (
+                          <TableCell key={cellIndex}>{cell}</TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              <div>
+                {rowsPerPage !== "all" && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                      className="cursor-pointer"
+                    />
+                  </PaginationItem>
+                  {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
+                  {Array.from(
+                    { length: Math.min(7, totalPages) },
+                    (_, i) => currentPage - 3 + i
+                  )
+                    .filter((page) => page > 1 && page < totalPages)
+                    .map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          onClick={() => setCurrentPage(page)}
+                          className={page === currentPage ? "font-bold" : ""}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                  {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
+                  <PaginationItem>
+                    <PaginationLink href="#" onClick={() => setCurrentPage(totalPages)}>
+                      {totalPages}
+                    </PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                      className="cursor-pointer"
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+            </div>
+          </>
+          ) : null}
+
+          {isFullScreen && tableData && (
+            <FullScreenTableModal
+              tableData={tableData}
+              paginatedData={paginatedData ?? []}
+              totalPages={totalPages}
+              currentPage={currentPage}
+              rowsPerPage={rowsPerPage}
+              setRowsPerPage={setRowsPerPage}
+              setCurrentPage={setCurrentPage}
+              toggleFullScreen={toggleFullScreen}
+              isFullScreen={isFullScreen}
             />
-          </PaginationItem>
-          {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
-          {Array.from(
-            { length: Math.min(7, totalPages) },
-            (_, i) => currentPage - 3 + i
-          )
-            .filter((page) => page > 1 && page < totalPages)
-            .map((page) => (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  href="#"
-                  onClick={() => setCurrentPage(page)}
-                  className={page === currentPage ? "font-bold" : ""}
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-          {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
-          <PaginationItem>
-            <PaginationLink href="#" onClick={() => setCurrentPage(totalPages)}>
-              {totalPages}
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-              className="cursor-pointer"
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    )}
-  </div>
-) : (
-  <></>
-)}
+          )}
         </main>
       </div>
     </I18nextProvider>
