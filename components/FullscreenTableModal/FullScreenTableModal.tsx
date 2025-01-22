@@ -17,6 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { IoIosClose } from 'react-icons/io';
+import { Textarea } from '../ui/textarea';
+import { useState } from 'react';
+import { Button } from '../ui/button';
 
 interface IFullScreenTableProps {
   tableData: string[][];
@@ -28,6 +31,7 @@ interface IFullScreenTableProps {
   totalPages: number;
   paginatedData: string[][];
   setCurrentPage: (page: number) => void;
+  handleGenerateCommand: () => void;
 }
 
 const FullScreenTableModal = ({
@@ -39,30 +43,45 @@ const FullScreenTableModal = ({
   isFullScreen,
   toggleFullScreen,
   setCurrentPage,
-  currentPage
+  currentPage,
+  handleGenerateCommand
 }: IFullScreenTableProps) => {
   const { t } = useTranslation();
+  const [userInput, setUserInput] = useState<string>("");
 
   return (
     <div className={isFullScreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>
-      <div className='w-full m-5'>
-      <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t('rowsPerPage')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-                <SelectItem value="all">{t('all')}</SelectItem>
-              </SelectContent>
-            </Select>
+      <div className='w-full flex items-center justify-center'>
+        <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder={t('rowsPerPage')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="5">5</SelectItem>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+            <SelectItem value="100">100</SelectItem>
+            <SelectItem value="all">{t('all')}</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Textarea
+          placeholder={t('textareaPlaceholder')}
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          className="mx-auto m-2 border border-gray-300 rounded p-2 w-full max-w-md"
+        />
+
+        <Button onClick={handleGenerateCommand}>
+          {t('generate')}
+        </Button>
+
         <IoIosClose
           className="absolute top-2 right-2 cursor-pointer text-2xl"
           onClick={toggleFullScreen}
         />
       </div>
+
 
       <div className="flex-1 overflow-auto">
         <Table className="w-full table-auto">

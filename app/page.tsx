@@ -28,6 +28,7 @@ import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from "@/translation";
 import Flag from 'react-world-flags';
 import FullScreenTableModal from '@/components/FullscreenTableModal/FullScreenTableModal';
+import { FaExpandAlt } from "react-icons/fa";
 
 export default function Home() {
   const { toast } = useToast();
@@ -181,67 +182,70 @@ export default function Home() {
           </Select>
         </header>
 
-        <main className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto h-full max-h-screen">
-          <h1 className='text-2xl font-bold m-5'>{t('title')}</h1>
-          <Input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            ref={fileInputRef}
-            className="hidden"
-          />
+        <main className="flex flex-col items-center justify-evenly w-full max-w-3xl mx-auto h-full max-h-screen">
 
-          <Button size="lg" onClick={triggerFileUpload}>
-            {t('upload')}
-          </Button>
+          <div className='flex flex-col items-center'>
+            <h1 className='text-2xl font-bold m-5'>{t('title')}</h1>
+            <Input
+              type="file"
+              accept=".csv"
+              onChange={handleFileUpload}
+              ref={fileInputRef}
+              className="hidden"
+            />
+
+            <Button size="lg" onClick={triggerFileUpload}>
+              {t('upload')}
+            </Button>
 
           {tableData && (
-        <div
-            className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
-              fadeIn ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <Textarea
-            placeholder="Describe how you want to manipulate the dataset..."
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
-          />
+            <div
+                className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
+                  fadeIn ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+              <Textarea
+                placeholder={t('textareaPlaceholder')}
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
+              />
 
-          <div className="flex items-center justify-center m-4 gap-4">
-            <Button onClick={handleGenerateCommand}>
-              {t('generate')}
-            </Button>
+              <div className="flex items-center justify-center m-4 gap-4">
+                <Button onClick={handleGenerateCommand}>
+                  {t('generate')}
+                </Button>
 
-            <Button variant="destructive" onClick={handleClearTable}>
-              {t('clear')}
-            </Button>
+                <Button variant="destructive" onClick={handleClearTable}>
+                  {t('clear')}
+                </Button>
 
-            <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t('rowsPerPage')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-                <SelectItem value="all">{t('all')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      )}
+                <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={t('rowsPerPage')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+      </div>
 
           {loading ? (
             <Loader />
           ) : tableData && !isFullScreen ? (
             <>
-              <div className="relative max-h-[300px] overflow-y-scroll no-scrollbar">
-                <Button variant={'ghost'} onClick={toggleFullScreen}>Expand table</Button>
+              <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
+                <Button className='place-self-end' variant={'ghost'} onClick={toggleFullScreen}>Expand table <FaExpandAlt /> </Button>
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className='bg-gray-200'>
                       {tableData[0].map((header, index) => (
                         <TableCell key={index} className="font-semibold">
                           {header}
@@ -309,6 +313,7 @@ export default function Home() {
 
           {isFullScreen && tableData && (
             <FullScreenTableModal
+              handleGenerateCommand={handleGenerateCommand}
               tableData={tableData}
               paginatedData={paginatedData ?? []}
               totalPages={totalPages}
