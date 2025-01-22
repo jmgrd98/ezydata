@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select";
 import { IoIosClose } from 'react-icons/io';
 import { Textarea } from '../ui/textarea';
-import { useState } from 'react';
 import { Button } from '../ui/button';
 
 interface IFullScreenTableProps {
@@ -32,7 +31,10 @@ interface IFullScreenTableProps {
   paginatedData: string[][];
   setCurrentPage: (page: number) => void;
   handleGenerateCommand: () => void;
+  userInput: string; // New prop
+  setUserInput: React.Dispatch<React.SetStateAction<string>>; // New prop
 }
+
 const FullScreenTableModal = ({
   tableData,
   paginatedData,
@@ -43,14 +45,15 @@ const FullScreenTableModal = ({
   toggleFullScreen,
   setCurrentPage,
   currentPage,
-  handleGenerateCommand
+  handleGenerateCommand,
+  userInput,
+  setUserInput,
 }: IFullScreenTableProps) => {
   const { t } = useTranslation();
-  const [userInput, setUserInput] = useState<string>("");
 
   return (
     <div className={isFullScreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>
-      <div className='w-full flex items-center justify-center gap-5'>
+      <div className="w-full flex items-center justify-center gap-5">
         <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={t('rowsPerPage')} />
@@ -81,7 +84,6 @@ const FullScreenTableModal = ({
         />
       </div>
 
-
       <div className="flex-1 overflow-auto">
         <Table className="w-full table-auto">
           <TableHeader>
@@ -110,7 +112,7 @@ const FullScreenTableModal = ({
         </Table>
       </div>
 
-      {rowsPerPage !== "all" && (
+      {rowsPerPage !== 'all' && (
         <Pagination className="mt-4">
           <PaginationContent>
             <PaginationItem>
@@ -120,17 +122,14 @@ const FullScreenTableModal = ({
               />
             </PaginationItem>
             {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
-            {Array.from(
-              { length: Math.min(7, totalPages) },
-              (_, i) => currentPage - 3 + i
-            )
+            {Array.from({ length: Math.min(7, totalPages) }, (_, i) => currentPage - 3 + i)
               .filter((page) => page > 1 && page < totalPages)
               .map((page) => (
                 <PaginationItem key={page}>
                   <PaginationLink
                     href="#"
                     onClick={() => setCurrentPage(page)}
-                    className={page === currentPage ? "font-bold" : ""}
+                    className={page === currentPage ? 'font-bold' : ''}
                   >
                     {page}
                   </PaginationLink>
