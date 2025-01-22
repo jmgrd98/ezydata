@@ -33,7 +33,6 @@ interface IFullScreenTableProps {
   setCurrentPage: (page: number) => void;
   handleGenerateCommand: () => void;
 }
-
 const FullScreenTableModal = ({
   tableData,
   paginatedData,
@@ -51,7 +50,7 @@ const FullScreenTableModal = ({
 
   return (
     <div className={isFullScreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>
-      <div className='w-full flex items-center justify-center'>
+      <div className='w-full flex items-center justify-center gap-5'>
         <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={t('rowsPerPage')} />
