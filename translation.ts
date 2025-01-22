@@ -1,6 +1,6 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
 const resources = {
   en: {
@@ -20,9 +20,17 @@ const resources = {
       paginationPrevious: "Previous",
       paginationNext: "Next",
       rows: "Rows",
-      all: 'All',
-      next: 'Next',
-      previous: 'Previous'
+      all: "All",
+      next: "Next",
+      previous: "Previous",
+      textareaPlaceholder: "Describe how you want to manipulate your data...",
+
+      toast: {
+        noPromptTitle: "Please write a prompt.",
+        noPromptDesc: "Please write a prompt.",
+        noDatasetTitle: "Please upload a CSV file.",
+        noDatasetDesc: "Please upload a CSV file.",
+      },
     },
   },
   pt: {
@@ -38,11 +46,22 @@ const resources = {
       noPromptDescription: "Por favor, escreva uma instrução.",
       error: "Erro",
       unexpectedError: "Ocorreu um erro inesperado.",
-      invalidFileType: "Tipo de arquivo inválido. Apenas arquivos CSV são permitidos.",
+      invalidFileType:
+        "Tipo de arquivo inválido. Apenas arquivos CSV são permitidos.",
       paginationPrevious: "Anterior",
       paginationNext: "Próximo",
       rows: "Linhas",
-      all: 'Todas',
+      all: "Todas",
+      next: "Próximo",
+      previous: "Anterior",
+      textareaPlaceholder: "Descreva como deseja manipular seus dados...",
+    },
+
+    toast: {
+      noPromptTitle: "Por favor, escreva uma instrução.",
+      noPromptDesc: "Por favor, escreva uma instrução.",
+      noDatasetTitle: "Por favor, envie um arquivo CSV.",
+      noDatasetDesc: "Por favor, envie um arquivo CSV.",
     },
   },
 };
@@ -52,7 +71,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'en',
+    fallbackLng: "en",
     interpolation: {
       escapeValue: false,
     },
