@@ -24,6 +24,7 @@ const resources = {
       next: "Next",
       previous: "Previous",
       textareaPlaceholder: "Describe how you want to manipulate your data...",
+      expandTable: "Expand Table",
 
       toast: {
         noPromptTitle: "Please write a prompt.",
@@ -55,13 +56,14 @@ const resources = {
       next: "Próximo",
       previous: "Anterior",
       textareaPlaceholder: "Descreva como deseja manipular seus dados...",
-    },
+      expandTable: "Expandir Tabela",
 
-    toast: {
-      noPromptTitle: "Por favor, escreva uma instrução.",
-      noPromptDesc: "Por favor, escreva uma instrução.",
-      noDatasetTitle: "Por favor, envie um arquivo CSV.",
-      noDatasetDesc: "Por favor, envie um arquivo CSV.",
+      toast: {
+        noPromptTitle: "Por favor, escreva uma instrução.",
+        noPromptDesc: "Por favor, escreva uma instrução.",
+        noDatasetTitle: "Por favor, envie um arquivo CSV.",
+        noDatasetDesc: "Por favor, envie um arquivo CSV.",
+      },
     },
   },
 };

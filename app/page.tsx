@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -54,6 +54,28 @@ export default function Home() {
     rowsPerPage === 'all'
       ? tableData?.slice(1)
       : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
+
+  useEffect(() => {
+    detectLanguage();
+  }, []);
+
+  const detectLanguage = async () => {
+    try {
+      const response = await fetch("https://ipapi.co/json/");
+      const data = await response.json();
+      const countryCode = data.country_code;
+      const languageMap: Record<string, string> = {
+        US: "en",
+        BR: "pt",
+        // Add more mappings as needed
+      };
+  
+      const language = languageMap[countryCode] || "en";
+      i18n.changeLanguage(language);
+    } catch (error) {
+      console.error("Error detecting location:", error);
+    }
+  };
 
   const toggleFullScreen = () => setIsFullScreen(!isFullScreen);
 
@@ -249,7 +271,7 @@ export default function Home() {
           ) : tableData && !isFullScreen ? (
             <>
               <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
-                <Button className='place-self-end' variant={'ghost'} onClick={toggleFullScreen}>Expand table <FaExpandAlt /> </Button>
+                <Button className='place-self-end mb-2' variant={'ghost'} onClick={toggleFullScreen}>{t('expandTable')}<FaExpandAlt /> </Button>
                 <Table>
                   <TableHeader>
                     <TableRow className='bg-gray-200'>

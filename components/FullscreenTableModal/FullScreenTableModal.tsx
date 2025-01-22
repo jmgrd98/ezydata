@@ -84,8 +84,8 @@ const FullScreenTableModal = ({
         />
       </div>
 
-      <div className="flex-1 overflow-auto">
-        <Table className="w-full table-auto">
+      <div className="flex-1 flex justify-center items-center overflow-auto">
+        <Table className="w-full max-w-6xl table-auto">
           <TableHeader>
             <TableRow>
               {tableData[0].map((header, index) => (
@@ -111,6 +111,7 @@ const FullScreenTableModal = ({
           </TableBody>
         </Table>
       </div>
+
 
       {rowsPerPage !== 'all' && (
         <Pagination className="mt-4">
