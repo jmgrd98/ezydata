@@ -40,6 +40,12 @@ export default function Home() {
   const [fadeIn, setFadeIn] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  const toggleFullScreen = () => {
+    setIsFullScreen((prev) => !prev);
+  };
+
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
@@ -230,94 +236,95 @@ export default function Home() {
         </div>
       )}
 
-      {loading ? (
-        <Loader />
-      ) : tableData ? (
-        <div className={`h-[300px] text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
-          fadeIn ? 'opacity-100' : 'opacity-0'
-        }`}>
-          <Table className="mt-4 w-full max-w-full table-auto border-collapse h-[300px]">
-            <TableHeader>
-              <TableRow>
-                {tableData[0].map((header, index) => (
-                  <TableCell key={index} className="px-4 py-2 font-semibold bg-gray-200 text-center">
-                    {header}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData?.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  {row.map((cell, cellIndex) => (
-                    <TableCell key={cellIndex} className="px-4 py-2 text-center">
-                      {cell}
-                    </TableCell>
-                  ))}
-                </TableRow>
+{loading ? (
+  <Loader />
+) : tableData ? (
+  <div
+    className={`${
+      isFullScreen ? "fixed inset-0 z-50 w-screen h-screen bg-white p-4 overflow-y-auto" : ""
+    } transition-opacity duration-700 ease-in-out relative`}
+  >
+    <Button onClick={toggleFullScreen} variant="secondary" className="mb-2">
+      {isFullScreen ? t('collapse') : t('expand')}
+    </Button>
+    <div
+      className={`${
+        isFullScreen
+          ? "w-full h-full overflow-y-auto"
+          : "relative max-h-[300px] overflow-y-scroll no-scrollbar"
+      }`}
+    >
+      <Table className="w-full table-auto border-collapse border border-grey-500">
+        <TableHeader>
+          <TableRow>
+            {tableData[0].map((header, index) => (
+              <TableCell
+                key={index}
+                className="px-4 py-2 font-semibold bg-gray-200 text-center"
+              >
+                {header}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {paginatedData?.map((row, rowIndex) => (
+            <TableRow key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <TableCell key={cellIndex} className="px-4 py-2 text-center">
+                  {cell}
+                </TableCell>
               ))}
-            </TableBody>
-          </Table>
-          {rowsPerPage !== 'all' && (
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-                    className="cursor-pointer"
-                  />
-                </PaginationItem>
-                {/* Render first page */}
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    onClick={() => setCurrentPage(1)}
-                  >
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-                {/* Add ellipsis if needed */}
-                {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
-                {/* Render dynamic page range */}
-                {Array.from(
-                  { length: Math.min(7, totalPages) },
-                  (_, i) => currentPage - 3 + i
-                )
-                  .filter((page) => page > 1 && page < totalPages)
-                  .map((page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        href="#"
-                        onClick={() => setCurrentPage(page)}
-                        className={page === currentPage ? "font-bold" : ""}
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    onClick={() => setCurrentPage(totalPages)}
-                  >
-                    {totalPages}
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-                    className="cursor-pointer"
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </div>
-      ) : (
-        // <p className="text-gray-600 mt-4">No data to display. Please upload a CSV file.</p>
-        <></>
-      )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+    {rowsPerPage !== "all" && (
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+              className="cursor-pointer"
+            />
+          </PaginationItem>
+          {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
+          {Array.from(
+            { length: Math.min(7, totalPages) },
+            (_, i) => currentPage - 3 + i
+          )
+            .filter((page) => page > 1 && page < totalPages)
+            .map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  onClick={() => setCurrentPage(page)}
+                  className={page === currentPage ? "font-bold" : ""}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+          {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
+          <PaginationItem>
+            <PaginationLink href="#" onClick={() => setCurrentPage(totalPages)}>
+              {totalPages}
+            </PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+              className="cursor-pointer"
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    )}
+  </div>
+) : (
+  <></>
+)}
         </main>
       </div>
     </I18nextProvider>
