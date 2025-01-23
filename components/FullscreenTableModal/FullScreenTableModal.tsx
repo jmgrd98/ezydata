@@ -19,6 +19,7 @@ import {
 import { IoIosClose } from 'react-icons/io';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
+import { Loader } from '@/components/Loader/Loader';
 
 interface IFullScreenTableProps {
   tableData: string[][];
@@ -31,8 +32,10 @@ interface IFullScreenTableProps {
   paginatedData: string[][];
   setCurrentPage: (page: number) => void;
   handleGenerateCommand: () => void;
-  userInput: string; // New prop
-  setUserInput: React.Dispatch<React.SetStateAction<string>>; // New prop
+  userInput: string;
+  setUserInput: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  handleClearTable: () => void; // New prop for clearing the table
 }
 
 const FullScreenTableModal = ({
@@ -48,6 +51,8 @@ const FullScreenTableModal = ({
   handleGenerateCommand,
   userInput,
   setUserInput,
+  loading,
+  handleClearTable, // Accept the new prop
 }: IFullScreenTableProps) => {
   const { t } = useTranslation();
 
@@ -74,8 +79,12 @@ const FullScreenTableModal = ({
           className="mx-auto m-2 border border-gray-300 rounded p-2 w-full max-w-md"
         />
 
-        <Button onClick={handleGenerateCommand}>
+        <Button onClick={handleGenerateCommand} disabled={loading}>
           {t('generate')}
+        </Button>
+
+        <Button variant="destructive" onClick={handleClearTable} disabled={loading}>
+          {t('clear')}
         </Button>
 
         <IoIosClose
@@ -85,36 +94,38 @@ const FullScreenTableModal = ({
       </div>
 
       <div className="w-full flex-1 flex justify-center items-center overflow-auto">
-        <div className="w-full max-w-6xl max-h-[600px] overflow-y-auto border">
-          <Table className="table-auto w-full">
-            <TableHeader>
-              <TableRow>
-                {tableData[0].map((header, index) => (
-                  <TableCell
-                    key={index}
-                    className="px-4 py-2 font-semibold bg-gray-200 text-center sticky top-0 z-10"
-                  >
-                    {header}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  {row.map((cell, cellIndex) => (
-                    <TableCell key={cellIndex} className="px-4 py-2 text-center">
-                      {cell}
+        {loading ? (
+          <Loader />
+        ) : (
+          <div className="w-full max-w-6xl max-h-[600px] overflow-y-auto border">
+            <Table className="table-auto w-full">
+              <TableHeader>
+                <TableRow>
+                  {tableData[0].map((header, index) => (
+                    <TableCell
+                      key={index}
+                      className="px-4 py-2 font-semibold bg-gray-200 text-center sticky top-0 z-10"
+                    >
+                      {header}
                     </TableCell>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {paginatedData.map((row, rowIndex) => (
+                  <TableRow key={rowIndex}>
+                    {row.map((cell, cellIndex) => (
+                      <TableCell key={cellIndex} className="px-4 py-2 text-center">
+                        {cell}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
-
-
 
       {rowsPerPage !== 'all' && (
         <Pagination className="mt-4">

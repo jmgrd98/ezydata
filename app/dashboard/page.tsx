@@ -34,6 +34,7 @@ export default function Home() {
   const { t } = useTranslation();
 
   const [tableData, setTableData] = useState<string[][] | null>(null);
+  const [originalTableData, setOriginalTableData] = useState<string[][] | null>(null);
   const [userInput, setUserInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -85,18 +86,21 @@ export default function Home() {
         setLoading(true);
         const text = await file.text();
         const rows = text.split('\n').map((row) => row.split(','));
+        setOriginalTableData(rows); // Store the unmodified data
         setTableData(rows);
         setCurrentPage(1);
         setTimeout(() => setFadeIn(true), 100);
       } catch (error) {
         console.error(t('error.readFile'), error);
         setTableData(null);
+        setOriginalTableData(null);
       } finally {
         setLoading(false);
       }
     } else {
       console.error(t('error.invalidFileType'));
       setTableData(null);
+      setOriginalTableData(null);
     }
   };
 
@@ -171,9 +175,11 @@ export default function Home() {
 
   const handleClearTable = () => {
     setUserInput("");
-    setTableData(null);
-    setFadeIn(false);
+    setTableData(originalTableData);
     setCurrentPage(1);
+    setFadeIn(false);
+    
+    setTimeout(() => setFadeIn(true), 100);
   };
 
   return (
@@ -195,7 +201,6 @@ export default function Home() {
               {t('upload')}
             </Button>
 
-          {tableData && (
             <div
                 className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
                   fadeIn ? 'opacity-100' : 'opacity-0'
@@ -209,7 +214,7 @@ export default function Home() {
               />
 
               <div className="flex items-center justify-center m-4 gap-4">
-                <Button onClick={handleGenerateCommand}>
+                <Button onClick={handleGenerateCommand} disabled={loading}>
                   {t('generate')}
                 </Button>
 
@@ -231,7 +236,6 @@ export default function Home() {
                 </Select>
               </div>
             </div>
-          )}
       </div>
 
           {loading ? (
@@ -322,6 +326,8 @@ export default function Home() {
               isFullScreen={isFullScreen}
               userInput={userInput}
               setUserInput={setUserInput}
+              loading={loading}
+              handleClearTable={handleClearTable}
             />
           )}
 
