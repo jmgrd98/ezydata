@@ -24,12 +24,31 @@ const resources = {
       next: "Next",
       previous: "Previous",
       textareaPlaceholder: "Describe how you want to manipulate your data...",
+      expandTable: "Expand Table",
 
       toast: {
         noPromptTitle: "Please write a prompt.",
         noPromptDesc: "Please write a prompt.",
         noDatasetTitle: "Please upload a CSV file.",
         noDatasetDesc: "Please upload a CSV file.",
+      },
+
+      landing: {
+        landingHero: {
+          title: "You don't need to know",
+          typewriterStrings: {
+            python: "Python",
+            pandas: "Pandas",
+            numpy: "Numpy",
+            matplotlib: "Matplotlib",
+            howToCode: "how to code",
+          },
+          subtitle: "to manipulate your data.",
+          description:
+            "Visualize your dataset and generate pandas commands to manipulate it.",
+          generateButton: "Start now",
+          noCreditCard: "No credit card required.",
+        },
       },
     },
   },
@@ -55,13 +74,32 @@ const resources = {
       next: "Próximo",
       previous: "Anterior",
       textareaPlaceholder: "Descreva como deseja manipular seus dados...",
-    },
+      expandTable: "Expandir Tabela",
 
-    toast: {
-      noPromptTitle: "Por favor, escreva uma instrução.",
-      noPromptDesc: "Por favor, escreva uma instrução.",
-      noDatasetTitle: "Por favor, envie um arquivo CSV.",
-      noDatasetDesc: "Por favor, envie um arquivo CSV.",
+      toast: {
+        noPromptTitle: "Por favor, escreva uma instrução.",
+        noPromptDesc: "Por favor, escreva uma instrução.",
+        noDatasetTitle: "Por favor, envie um arquivo CSV.",
+        noDatasetDesc: "Por favor, envie um arquivo CSV.",
+      },
+
+      landing: {
+        landingHero: {
+          title: "Você não precisa saber",
+          typewriterStrings: {
+            python: "Python",
+            pandas: "Pandas",
+            numpy: "Numpy",
+            matplotlib: "Matplotlib",
+            howToCode: "código",
+          },
+          subtitle: "para manipular seus dados.",
+          description:
+            "Visualize seu conjunto de dados e gere comandos pandas para manipular.",
+          generateButton: "Comece agora",
+          noCreditCard: "Totalmente gratuito.",
+        },
+      },
     },
   },
 };
