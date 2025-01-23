@@ -425,6 +425,7 @@ export default function Home() {
               setUserInput={setUserInput}
               loading={loading}
               handleClearTable={handleClearTable}
+              graphData={graphData}
             />
           )}
 
