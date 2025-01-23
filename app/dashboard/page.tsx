@@ -183,7 +183,6 @@ export default function Home() {
         <main className="flex flex-col items-center justify-evenly w-full max-w-3xl mx-auto h-full max-h-full">
 
           <div className='flex flex-col items-center'>
-            <h1 className='text-2xl font-bold m-5'>{t('title')}</h1>
             <Input
               type="file"
               accept=".csv"
@@ -192,7 +191,7 @@ export default function Home() {
               className="hidden"
             />
 
-            <Button size="lg" onClick={triggerFileUpload}>
+            <Button size="xl" onClick={triggerFileUpload}>
               {t('upload')}
             </Button>
 
