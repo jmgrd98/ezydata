@@ -84,33 +84,36 @@ const FullScreenTableModal = ({
         />
       </div>
 
-      <div className="flex-1 flex justify-center items-center overflow-auto">
-        <Table className="w-full max-w-6xl table-auto">
-          <TableHeader>
-            <TableRow>
-              {tableData[0].map((header, index) => (
-                <TableCell
-                  key={index}
-                  className="px-4 py-2 font-semibold bg-gray-200 text-center"
-                >
-                  {header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedData.map((row, rowIndex) => (
-              <TableRow key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <TableCell key={cellIndex} className="px-4 py-2 text-center">
-                    {cell}
+      <div className="w-full flex-1 flex justify-center items-center overflow-auto">
+        <div className="w-full max-w-6xl max-h-[600px] overflow-y-auto border">
+          <Table className="table-auto w-full">
+            <TableHeader>
+              <TableRow>
+                {tableData[0].map((header, index) => (
+                  <TableCell
+                    key={index}
+                    className="px-4 py-2 font-semibold bg-gray-200 text-center sticky top-0 z-10"
+                  >
+                    {header}
                   </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {paginatedData.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <TableCell key={cellIndex} className="px-4 py-2 text-center">
+                      {cell}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
+
 
 
       {rowsPerPage !== 'all' && (
