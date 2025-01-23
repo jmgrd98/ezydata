@@ -20,6 +20,8 @@ import { IoIosClose } from 'react-icons/io';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { Loader } from '@/components/Loader/Loader';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import Image from 'next/image';
 
 interface IFullScreenTableProps {
   tableData: string[][];
@@ -35,7 +37,8 @@ interface IFullScreenTableProps {
   userInput: string;
   setUserInput: React.Dispatch<React.SetStateAction<string>>;
   loading: boolean;
-  handleClearTable: () => void; // New prop for clearing the table
+  handleClearTable: () => void;
+  graphData: string | null;
 }
 
 const FullScreenTableModal = ({
@@ -52,7 +55,8 @@ const FullScreenTableModal = ({
   userInput,
   setUserInput,
   loading,
-  handleClearTable, // Accept the new prop
+  handleClearTable,
+  graphData,
 }: IFullScreenTableProps) => {
   const { t } = useTranslation();
 
@@ -96,75 +100,128 @@ const FullScreenTableModal = ({
       <div className="w-full flex-1 flex justify-center items-center overflow-auto">
         {loading ? (
           <Loader />
-        ) : (
-          <div className="w-full max-w-6xl max-h-[600px] overflow-y-auto border">
-            <Table className="table-auto w-full">
+        ) : tableData && tableData.length > 0 && !graphData ? (
+          <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
+            {!isFullScreen && (
+              <Button
+                className="place-self-end mb-2"
+                variant={"ghost"}
+                onClick={toggleFullScreen}
+              >
+                {t('expandTable')}
+              </Button>
+            )}
+            <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-gray-200">
                   {tableData[0].map((header, index) => (
-                    <TableCell
-                      key={index}
-                      className="px-4 py-2 font-semibold bg-gray-200 text-center sticky top-0 z-10"
-                    >
+                    <TableCell key={index} className="font-semibold">
                       {header}
                     </TableCell>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedData.map((row, rowIndex) => (
+                {paginatedData?.map((row, rowIndex) => (
                   <TableRow key={rowIndex}>
                     {row.map((cell, cellIndex) => (
-                      <TableCell key={cellIndex} className="px-4 py-2 text-center">
-                        {cell}
-                      </TableCell>
+                      <TableCell key={cellIndex}>{cell}</TableCell>
                     ))}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+
+            {rowsPerPage !== "all" && (
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                      className="cursor-pointer"
+                    />
+                  </PaginationItem>
+                  {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
+                  {Array.from(
+                    { length: Math.min(7, totalPages) },
+                    (_, i) => currentPage - 3 + i
+                  )
+                    .filter((page) => page > 1 && page < totalPages)
+                    .map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          onClick={() => setCurrentPage(page)}
+                          className={page === currentPage ? "font-bold" : ""}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                  {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
+                  <PaginationItem>
+                    <PaginationLink href="#" onClick={() => setCurrentPage(totalPages)}>
+                      {totalPages}
+                    </PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                      className="cursor-pointer"
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </div>
+        ) : graphData ? (
+          <Tabs defaultValue="chart">
+            <TabsList>
+              <TabsTrigger value="table">{t('table')}</TabsTrigger>
+              <TabsTrigger value="chart">{t('chart')}</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="table">
+              <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-200">
+                      {tableData![0].map((header, index) => (
+                        <TableCell key={index} className="font-semibold">
+                          {header}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedData?.map((row, rowIndex) => (
+                      <TableRow key={rowIndex}>
+                        {row.map((cell, cellIndex) => (
+                          <TableCell key={cellIndex}>{cell}</TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="chart">
+              <div className="flex justify-center items-center">
+                <Image
+                  src={graphData}
+                  alt={t('generatedGraph')}
+                  width={800}
+                  height={600}
+                  priority
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <div>{t('noData')}</div>
         )}
       </div>
-
-      {rowsPerPage !== 'all' && (
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-                className="cursor-pointer"
-              />
-            </PaginationItem>
-            {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
-            {Array.from({ length: Math.min(7, totalPages) }, (_, i) => currentPage - 3 + i)
-              .filter((page) => page > 1 && page < totalPages)
-              .map((page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    href="#"
-                    onClick={() => setCurrentPage(page)}
-                    className={page === currentPage ? 'font-bold' : ''}
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-            {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
-            <PaginationItem>
-              <PaginationLink href="#" onClick={() => setCurrentPage(totalPages)}>
-                {totalPages}
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-                className="cursor-pointer"
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
     </div>
   );
 };

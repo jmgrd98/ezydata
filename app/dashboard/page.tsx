@@ -28,6 +28,8 @@ import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from "@/translation";
 import FullScreenTableModal from '@/components/FullscreenTableModal/FullScreenTableModal';
 import { FaExpandAlt } from "react-icons/fa";
+import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Home() {
   const { toast } = useToast();
@@ -42,6 +44,7 @@ export default function Home() {
   const [fadeIn, setFadeIn] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [graphData, setGraphData] = useState<string | null>(null);
 
   const totalPages =
     tableData && tableData.length > 0
@@ -128,7 +131,7 @@ export default function Home() {
     try {
       const csvData = tableData.map((row) => row.join(',')).join('\n');
   
-      const response = await fetch('https://aida-backend.onrender.com/process-command/', {
+      const response = await fetch('http://localhost:8000/process-command/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
@@ -140,34 +143,33 @@ export default function Home() {
       }
   
       const result = await response.json();
-      const parsedData = JSON.parse(result.data);
+      console.log(result)
   
-      if (parsedData?.columns && parsedData?.data) {
-        const updatedTableData = [parsedData.columns, ...parsedData.data];
-        setTableData(updatedTableData);
+      if (result.type === "table") {
+        const parsedData = JSON.parse(result.data);
+        if (parsedData?.columns && parsedData?.data) {
+          const updatedTableData = [parsedData.columns, ...parsedData.data];
+          setTableData(updatedTableData);
+        } else {
+          throw new Error(t('error.unexpectedResponse'));
+        }
+      } else if (result.type === "graph") {
+        const graphData = result.graph;
+        setGraphData(`data:image/png;base64,${graphData}`);
       } else {
         throw new Error(t('error.unexpectedResponse'));
       }
     } catch (error: unknown) {
       console.error('Error generating pandas command:', error);
-      if (error instanceof Error) {
-        toast({
-          title: 'Error',
-          description: error.message || t('error.unexpected'),
-          duration: 5000,
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: String(error) || t('error.unexpected'),
-          duration: 5000,
-        });
-      }
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : t('error.unexpected'),
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }
   };
-  
 
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
@@ -240,7 +242,7 @@ export default function Home() {
 
           {loading ? (
             <Loader />
-          ) : tableData && !isFullScreen ? (
+          ) : tableData && !isFullScreen && !graphData ? (
             <>
               <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
                 <Button className='place-self-end mb-2' variant={'ghost'} onClick={toggleFullScreen}>{t('expandTable')}<FaExpandAlt /> </Button>
@@ -310,7 +312,102 @@ export default function Home() {
             )}
             </div>
           </>
-          ) : null}
+          ) : graphData && (
+            <>
+            <Tabs defaultValue="chart">
+              <TabsList>
+                <TabsTrigger value="table">{t('table')}</TabsTrigger>
+                <TabsTrigger value="chart">{t('chart')}</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="table">
+                <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
+                  <Button className="place-self-end mb-2" variant={'ghost'} onClick={toggleFullScreen}>
+                    {t('expandTable')}<FaExpandAlt />
+                  </Button>
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-200">
+                        {tableData![0].map((header, index) => (
+                          <TableCell key={index} className="font-semibold">
+                            {header}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedData?.map((row, rowIndex) => (
+                        <TableRow key={rowIndex}>
+                          {row.map((cell, cellIndex) => (
+                            <TableCell key={cellIndex}>{cell}</TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div>
+                  {rowsPerPage !== "all" && (
+                    <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                          className="cursor-pointer"
+                        />
+                      </PaginationItem>
+                      {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
+                      {Array.from(
+                        { length: Math.min(7, totalPages) },
+                        (_, i) => currentPage - 3 + i
+                      )
+                        .filter((page) => page > 1 && page < totalPages)
+                        .map((page) => (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              href="#"
+                              onClick={() => setCurrentPage(page)}
+                              className={page === currentPage ? "font-bold" : ""}
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                      {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
+                      <PaginationItem>
+                        <PaginationLink href="#" onClick={() => setCurrentPage(totalPages)}>
+                          {totalPages}
+                        </PaginationLink>
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                          className="cursor-pointer"
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="chart">
+                {graphData && (
+                  <div className="flex justify-center items-center">
+                    <Image
+                      src={graphData}
+                      alt={t('generatedGraph')}
+                      width={800}
+                      height={600}
+                      priority
+                    />
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+
 
           {isFullScreen && tableData && (
             <FullScreenTableModal
@@ -328,6 +425,7 @@ export default function Home() {
               setUserInput={setUserInput}
               loading={loading}
               handleClearTable={handleClearTable}
+              graphData={graphData}
             />
           )}
 
