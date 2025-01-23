@@ -131,7 +131,8 @@ export default function Home() {
     try {
       const csvData = tableData.map((row) => row.join(',')).join('\n');
   
-      const response = await fetch('http://localhost:8000/process-command/', {
+      const reponse = await fetch('https://aida-backend.onrender.com/process-command/', {
+      // const response = await fetch('http://localhost:8000/process-command/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
