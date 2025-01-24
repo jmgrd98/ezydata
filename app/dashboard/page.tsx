@@ -150,11 +150,12 @@ export default function Home() {
     // Determine the endpoint based on keywords
     const isChartRequest = /chart|graph|plot|visualize/i.test(userInput);
     // const endpoint = isChartRequest
-    //   ? 'http://localhost:8000/generate-chart/'
-    //   : 'http://localhost:8000/process-command/';
+    //   ? `${process.env.API_ROOT_URL_DEV}/generate-chart/`
+    //   : `${process.env.API_ROOT_URL_DEV}/process-command/`;
+    console.log('ENDPOINT', process.env.NEXT_PUBLIC_API_ROOT_URL_PROD)
     const endpoint = isChartRequest
-    ? 'https://aida-backend.onrender.com/generate-chart/'
-    : 'https://aida-backend.onrender.com/process-command/';
+    ? `${process.env.NEXT_PUBLIC_API_ROOT_URL_PROD}/generate-chart/`
+    : `${process.env.NEXT_PUBLIC_API_ROOT_URL_PROD}/process-command/`;
 
     const response = await fetch(endpoint, {
       method: 'POST',
