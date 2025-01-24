@@ -15,7 +15,7 @@ const LandingHero = () => {
   }
 
   return (
-    <div className='text-white font-bold py-36 text-center space-y-5'>
+    <div className='flex flex-col gap-5 text-white font-bold py-10 pb-40 text-center space-y-5'>
       <div className='text-4xl sm:text-5xl md:text-6xl lg:text-7xl space-y-5 font-extrabold'>
         <h1>{t('landing.landingHero.title')}</h1>
         <div className='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600'>
@@ -42,13 +42,13 @@ const LandingHero = () => {
 
       <div>
         <Link href={isSignedIn ? '/dashboard' : '/sign-up'}>
-          <Button className='md:text-lg p-4 md:p-6 rounded-full font-semibold'>
+          <Button size={'xl'} className='md:text-lg p-4 py-8 md:p-6 rounded-full font-semibold'>
             {t('landing.landingHero.generateButton')}
           </Button>
         </Link>
       </div>
 
-      <div className='text-zinc-400 text-xs md:text-sm font-normal'>
+      <div className='text-zinc-400 text-sm md:text-[16px] font-normal'>
         {t('landing.landingHero.noCreditCard')}
       </div>
     </div>
