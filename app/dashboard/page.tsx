@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, ElementType } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -28,8 +28,24 @@ import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from "@/translation";
 import FullScreenTableModal from '@/components/FullscreenTableModal/FullScreenTableModal';
 import { FaExpandAlt } from "react-icons/fa";
-import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TrendingUp } from "lucide-react"
+import { Label, Pie, PieChart } from "recharts"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import Image from 'next/image';
 
 export default function Home() {
   const { toast } = useToast();
@@ -45,6 +61,26 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [graphData, setGraphData] = useState<string | null>(null);
+  const [currentTab, setCurrentTab] = useState<'table' | 'chart'>("table");
+
+  const chartConfig = {
+    chrome: "hsl(var(--chart-1))",
+    safari: "hsl(var(--chart-2))",
+    firefox: "hsl(var(--chart-3))",
+    edge: "hsl(var(--chart-4))",
+    other: "hsl(var(--chart-5))",
+  };
+
+  let parsedGraphData: { name: string; value: number }[] | null = null;
+
+  if (graphData) {
+    try {
+      parsedGraphData = JSON.parse(graphData); // Parse graphData
+    } catch (error) {
+      console.error("Error parsing graph data:", error);
+    }
+  }
+
 
   const totalPages =
     tableData && tableData.length > 0
@@ -61,6 +97,10 @@ export default function Home() {
   useEffect(() => {
     detectLanguage();
   }, []);
+
+  useEffect(() => {
+    console.log('PARSED', parsedGraphData)
+  }, [parsedGraphData])
 
   const detectLanguage = async () => {
     try {
@@ -89,7 +129,7 @@ export default function Home() {
         setLoading(true);
         const text = await file.text();
         const rows = text.split('\n').map((row) => row.split(','));
-        setOriginalTableData(rows); // Store the unmodified data
+        setOriginalTableData(rows);
         setTableData(rows);
         setCurrentPage(1);
         setTimeout(() => setFadeIn(true), 100);
@@ -108,68 +148,76 @@ export default function Home() {
   };
 
   const handleGenerateCommand = async () => {
-    if (!tableData) {
-      toast({
-        title: t('toast.noDatasetTitle'),
-        description: t('toast.noDatasetDesc'),
-        duration: 5000,
-      });
-      return;
+  if (!tableData) {
+    toast({
+      title: t('toast.noDatasetTitle'),
+      description: t('toast.noDatasetDesc'),
+      duration: 5000,
+    });
+    return;
+  }
+
+  if (!userInput) {
+    toast({
+      title: t('toast.noPromptTitle'),
+      description: t('toast.noPromptDesc'),
+      duration: 5000,
+    });
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const csvData = tableData.map((row) => row.join(',')).join('\n');
+
+    // Determine the endpoint based on keywords
+    const isChartRequest = /chart|graph|plot|visualize/i.test(userInput);
+    const endpoint = isChartRequest
+      ? 'http://localhost:8000/generate-chart/'
+      : 'http://localhost:8000/process-command/';
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail);
     }
-  
-    if (!userInput) {
-      toast({
-        title: t('toast.noPromptTitle'),
-        description: t('toast.noPromptDesc'),
-        duration: 5000,
-      });
-      return;
-    }
-  
-    setLoading(true);
-  
-    try {
-      const csvData = tableData.map((row) => row.join(',')).join('\n');
-  
-      const response = await fetch('http://localhost:8000/process-command/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
-      });
-  
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail);
-      }
-  
-      const result = await response.json();
-      console.log(result)
-  
-      if (result.type === "table") {
-        const parsedData = JSON.parse(result.data);
-        if (parsedData?.columns && parsedData?.data) {
-          const updatedTableData = [parsedData.columns, ...parsedData.data];
-          setTableData(updatedTableData);
-        } else {
-          throw new Error(t('error.unexpectedResponse'));
-        }
-      } else if (result.type === "graph") {
-        const graphData = result.graph;
-        setGraphData(`data:image/png;base64,${graphData}`);
+
+    const result = await response.json();
+
+    if (result.type === "table") {
+      setCurrentTab('table');
+      const parsedData = JSON.parse(result.data);
+      if (parsedData?.columns && parsedData?.data) {
+        const updatedTableData = [parsedData.columns, ...parsedData.data];
+        setTableData(updatedTableData);
       } else {
         throw new Error(t('error.unexpectedResponse'));
       }
-    } catch (error: unknown) {
-      console.error('Error generating pandas command:', error);
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : t('error.unexpected'),
-        duration: 5000,
-      });
-    } finally {
-      setLoading(false);
+    } else if (result.type === "graph") {
+      setCurrentTab('chart')
+      const graphData = result.graph;
+      setGraphData(`data:image/png;base64,${graphData}`);
+    } else {
+      throw new Error(t('error.unexpectedResponse'));
     }
-  };
+  } catch (error) {
+    console.error('Error generating pandas command:', error);
+    toast({
+      title: 'Error',
+      description: error instanceof Error ? error.message : t('error.unexpected'),
+      duration: 5000,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
@@ -314,13 +362,13 @@ export default function Home() {
           </>
           ) : graphData && (
             <>
-            <Tabs defaultValue="chart">
+            <Tabs value={currentTab} defaultValue="chart">
               <TabsList>
-                <TabsTrigger value="table">{t('table')}</TabsTrigger>
-                <TabsTrigger value="chart">{t('chart')}</TabsTrigger>
+                <TabsTrigger onClick={() => setCurrentTab('table')} value="table">{t('table')}</TabsTrigger>
+                <TabsTrigger onClick={() => setCurrentTab('chart')} value="chart">{t('chart')}</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="table">
+              <TabsContent onChange={() => setCurrentTab('table')} value="table">
                 <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
                   <Button className="place-self-end mb-2" variant={'ghost'} onClick={toggleFullScreen}>
                     {t('expandTable')}<FaExpandAlt />
@@ -391,7 +439,7 @@ export default function Home() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="chart">
+              <TabsContent onChange={() => setCurrentTab('chart')} value="chart">
                 {graphData && (
                   <div className="flex justify-center items-center">
                     <Image
@@ -401,6 +449,71 @@ export default function Home() {
                       height={600}
                       priority
                     />
+
+                  {/* <Card className="flex flex-col">
+                        <CardHeader className="items-center pb-0">
+                          <CardTitle>Pie Chart - Donut with Text</CardTitle>
+                          <CardDescription>January - June 2024</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex-1 pb-0">
+                          <ChartContainer
+                            config={chartConfig}
+                            className="mx-auto aspect-square max-h-[250px]"
+                          >
+                            <PieChart>
+                              <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent hideLabel />}
+                              />
+                              <Pie
+                                data={parsedGraphData}
+                                dataKey="visitors"
+                                nameKey="browser"
+                                innerRadius={60}
+                                strokeWidth={5}
+                              >
+                                <Label
+                                  content={({ viewBox }) => {
+                                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                                      return (
+                                        <text
+                                          x={viewBox.cx}
+                                          y={viewBox.cy}
+                                          textAnchor="middle"
+                                          dominantBaseline="middle"
+                                        >
+                                          <tspan
+                                            x={viewBox.cx}
+                                            y={viewBox.cy}
+                                            className="fill-foreground text-3xl font-bold"
+                                          >
+                                            teste
+                                          </tspan>
+                                          <tspan
+                                            x={viewBox.cx}
+                                            y={(viewBox.cy || 0) + 24}
+                                            className="fill-muted-foreground"
+                                          >
+                                            Visitors
+                                          </tspan>
+                                        </text>
+                                      )
+                                    }
+                                  }}
+                                />
+                              </Pie>
+                            </PieChart>
+                          </ChartContainer>
+                        </CardContent>
+                        <CardFooter className="flex-col gap-2 text-sm">
+                          <div className="flex items-center gap-2 font-medium leading-none">
+                            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+                          </div>
+                          <div className="leading-none text-muted-foreground">
+                            Showing total visitors for the last 6 months
+                          </div>
+                        </CardFooter>
+                      </Card> */}
                   </div>
                 )}
               </TabsContent>
@@ -426,6 +539,8 @@ export default function Home() {
               loading={loading}
               handleClearTable={handleClearTable}
               graphData={graphData}
+              currentTab={currentTab}
+              setCurrentTab={setCurrentTab}
             />
           )}
 

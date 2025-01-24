@@ -22,6 +22,7 @@ import { Button } from '../ui/button';
 import { Loader } from '@/components/Loader/Loader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import Image from 'next/image';
+import { ElementType } from 'react';
 
 interface IFullScreenTableProps {
   tableData: string[][];
@@ -39,6 +40,8 @@ interface IFullScreenTableProps {
   loading: boolean;
   handleClearTable: () => void;
   graphData: string | null;
+  currentTab: 'table' | 'chart';
+  setCurrentTab: React.Dispatch<React.SetStateAction<'table' | 'chart'>>
 }
 
 const FullScreenTableModal = ({
@@ -57,8 +60,19 @@ const FullScreenTableModal = ({
   loading,
   handleClearTable,
   graphData,
+  currentTab,
+  setCurrentTab
 }: IFullScreenTableProps) => {
   const { t } = useTranslation();
+
+  let parsedGraphData: (ElementType)[] | null = null;
+  if (graphData) {
+    try {
+      parsedGraphData = JSON.parse(graphData);
+    } catch (error) {
+      console.error("Error parsing graph data:", error);
+    }
+  }
 
   return (
     <div className={isFullScreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>
@@ -175,10 +189,10 @@ const FullScreenTableModal = ({
             )}
           </div>
         ) : graphData ? (
-          <Tabs defaultValue="chart">
+          <Tabs value={currentTab} defaultValue="chart">
             <TabsList>
-              <TabsTrigger value="table">{t('table')}</TabsTrigger>
-              <TabsTrigger value="chart">{t('chart')}</TabsTrigger>
+              <TabsTrigger onClick={() => setCurrentTab('table')} value="table">{t('table')}</TabsTrigger>
+              <TabsTrigger onClick={() => setCurrentTab('chart')} value="chart">{t('chart')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="table">
