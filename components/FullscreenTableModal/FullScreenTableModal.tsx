@@ -39,6 +39,8 @@ interface IFullScreenTableProps {
   loading: boolean;
   handleClearTable: () => void;
   graphData: string | null;
+  currentTab: 'table' | 'chart';
+  setCurrentTab: React.Dispatch<React.SetStateAction<'table' | 'chart'>>
 }
 
 const FullScreenTableModal = ({
@@ -57,6 +59,8 @@ const FullScreenTableModal = ({
   loading,
   handleClearTable,
   graphData,
+  currentTab,
+  setCurrentTab
 }: IFullScreenTableProps) => {
   const { t } = useTranslation();
 
@@ -175,10 +179,10 @@ const FullScreenTableModal = ({
             )}
           </div>
         ) : graphData ? (
-          <Tabs defaultValue="chart">
+          <Tabs value={currentTab} defaultValue="chart">
             <TabsList>
-              <TabsTrigger value="table">{t('table')}</TabsTrigger>
-              <TabsTrigger value="chart">{t('chart')}</TabsTrigger>
+              <TabsTrigger onClick={() => setCurrentTab('table')} value="table">{t('table')}</TabsTrigger>
+              <TabsTrigger onClick={() => setCurrentTab('chart')} value="chart">{t('chart')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="table">

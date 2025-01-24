@@ -25,6 +25,8 @@ const resources = {
       previous: "Previous",
       textareaPlaceholder: "Describe how you want to manipulate your data...",
       expandTable: "Expand Table",
+      table: "Tabela",
+      chart: "Charts",
 
       toast: {
         noPromptTitle: "Please write a prompt.",
@@ -75,6 +77,8 @@ const resources = {
       previous: "Anterior",
       textareaPlaceholder: "Descreva como deseja manipular seus dados...",
       expandTable: "Expandir Tabela",
+      table: "Tabela",
+      chart: "Gráficos",
 
       toast: {
         noPromptTitle: "Por favor, escreva uma instrução.",
