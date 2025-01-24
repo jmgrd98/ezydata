@@ -22,7 +22,6 @@ import { Button } from '../ui/button';
 import { Loader } from '@/components/Loader/Loader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import Image from 'next/image';
-import { ElementType } from 'react';
 
 interface IFullScreenTableProps {
   tableData: string[][];
@@ -64,15 +63,6 @@ const FullScreenTableModal = ({
   setCurrentTab
 }: IFullScreenTableProps) => {
   const { t } = useTranslation();
-
-  let parsedGraphData: (ElementType)[] | null = null;
-  if (graphData) {
-    try {
-      parsedGraphData = JSON.parse(graphData);
-    } catch (error) {
-      console.error("Error parsing graph data:", error);
-    }
-  }
 
   return (
     <div className={isFullScreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>

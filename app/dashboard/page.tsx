@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, ElementType } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
@@ -29,22 +29,6 @@ import i18n from "@/translation";
 import FullScreenTableModal from '@/components/FullscreenTableModal/FullScreenTableModal';
 import { FaExpandAlt } from "react-icons/fa";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp } from "lucide-react"
-import { Label, Pie, PieChart } from "recharts"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import Image from 'next/image';
 
 export default function Home() {
@@ -62,14 +46,6 @@ export default function Home() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [graphData, setGraphData] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'table' | 'chart'>("table");
-
-  const chartConfig = {
-    chrome: "hsl(var(--chart-1))",
-    safari: "hsl(var(--chart-2))",
-    firefox: "hsl(var(--chart-3))",
-    edge: "hsl(var(--chart-4))",
-    other: "hsl(var(--chart-5))",
-  };
 
   let parsedGraphData: { name: string; value: number }[] | null = null;
 
