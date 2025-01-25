@@ -215,8 +215,8 @@ const FullScreenTableModal = ({
                 <Image
                   src={graphData}
                   alt={t('generatedGraph')}
-                  width={800}
-                  height={600}
+                  width={600}
+                  height={400}
                   priority
                 />
               </div>
