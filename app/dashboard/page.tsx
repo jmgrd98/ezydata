@@ -188,13 +188,49 @@ export default function Home() {
   };
 
   const handleGenerateCommand = async () => {
-    if (!tableData) {
-      toast({
-        title: t('toast.noDatasetTitle'),
-        description: t('toast.noDatasetDesc'),
-        duration: 5000,
-      });
-      return;
+
+  if (!tableData) {
+    toast({
+      title: t('toast.noDatasetTitle'),
+      description: t('toast.noDatasetDesc'),
+      duration: 5000,
+    });
+    return;
+  }
+
+  if (!userInput) {
+    toast({
+      title: t('toast.noPromptTitle'),
+      description: t('toast.noPromptDesc'),
+      duration: 5000,
+    });
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const csvData = tableData.map((row) => row.join(',')).join('\n');
+
+    // Determine the endpoint based on keywords
+    const isChartRequest = /chart|graph|plot|visualize/i.test(userInput);
+    // const endpoint = isChartRequest
+    //   ? `${process.env.API_ROOT_URL_DEV}/generate-chart/`
+    //   : `${process.env.API_ROOT_URL_DEV}/process-command/`;
+    console.log('ENDPOINT', process.env.NEXT_PUBLIC_API_ROOT_URL_PROD)
+    const endpoint = isChartRequest
+    ? `${process.env.NEXT_PUBLIC_API_ROOT_URL_PROD}/generate-chart/`
+    : `${process.env.NEXT_PUBLIC_API_ROOT_URL_PROD}/process-command/`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail);
     }
 
     if (!userInput) {
@@ -255,7 +291,10 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const triggerFileUpload = () => {
     fileInputRef.current?.click();

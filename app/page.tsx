@@ -6,6 +6,7 @@ import i18n from "@/translation";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import LandingContent from "@/components/Landing/LandingContent";
 
 const LandingPage = () => {
 
@@ -17,7 +18,6 @@ const LandingPage = () => {
     }, []);
 
     useEffect(() => {
-      console.log(isSignedIn)
       if (isSignedIn) {
         router.push('/dashboard');
       }
@@ -42,9 +42,10 @@ const LandingPage = () => {
   };
 
   return (
-    <div className='h-screen bg-black text-white'>
+    <div className='h-full bg-black text-white'>
       <LandingNavbar />
       <LandingHero />
+      <LandingContent />
     </div>
   )
 }
