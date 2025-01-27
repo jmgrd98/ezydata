@@ -51,12 +51,11 @@ export default function Home() {
 
   if (graphData) {
     try {
-      parsedGraphData = JSON.parse(graphData); // Parse graphData
+      parsedGraphData = JSON.parse(graphData);
     } catch (error) {
       console.error("Error parsing graph data:", error);
     }
   }
-
 
   const totalPages =
     tableData && tableData.length > 0
@@ -86,7 +85,6 @@ export default function Home() {
       const languageMap: Record<string, string> = {
         US: "en",
         BR: "pt",
-        // Add more mappings as needed
       };
   
       const language = languageMap[countryCode] || "en";
@@ -100,100 +98,164 @@ export default function Home() {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type === 'text/csv') {
-      try {
-        setLoading(true);
-        const text = await file.text();
+    if (!file) return;
+  
+    try {
+      setLoading(true);
+      const text = await file.text();
+      console.log('Raw file content:', text);
+
+      if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
         const rows = text.split('\n').map((row) => row.split(','));
         setOriginalTableData(rows);
         setTableData(rows);
-        setCurrentPage(1);
-        setTimeout(() => setFadeIn(true), 100);
-      } catch (error) {
-        console.error(t('error.readFile'), error);
-        setTableData(null);
-        setOriginalTableData(null);
-      } finally {
-        setLoading(false);
       }
-    } else {
-      console.error(t('error.invalidFileType'));
+      else if (file.type === 'application/json' || file.name.endsWith('.json')) {
+        const trimmedText = text.trim();
+        console.log('Trimmed JSON content:', trimmedText);
+
+        if (!/^[\{\[]/.test(trimmedText)) {
+          throw new Error(t('error.jsonInvalidStructure') + ' - ' + trimmedText.slice(0, 50) + '...');
+        }
+
+        try {
+          const jsonData = JSON.parse(trimmedText);
+          console.log('Parsed JSON:', jsonData);
+          
+          if (!Array.isArray(jsonData)) {
+            throw new Error(t('error.jsonNotArray') + ` - Type received: ${typeof jsonData}`);
+          }
+          if (jsonData.length === 0) {
+            throw new Error(t('error.jsonEmpty'));
+          }
+
+          const allKeys = jsonData.reduce((keys: string[], item) => {
+            if (typeof item !== 'object' || item === null) {
+              throw new Error(t('error.jsonInvalidObject') + ` - Item: ${JSON.stringify(item)}`);
+            }
+            Object.keys(item).forEach(key => {
+              if (!keys.includes(key)) keys.push(key);
+            });
+            return keys;
+          }, []);
+
+          const rows = jsonData.map(obj => allKeys.map(key => 
+            obj[key] !== undefined ? String(obj[key]) : ''
+          ));
+          
+          const tableData = [allKeys, ...rows];
+          setOriginalTableData(tableData);
+          setTableData(tableData);
+        } catch (parseError) {
+          if (parseError instanceof SyntaxError) {
+            console.log('Attempting CSV fallback...');
+            try {
+              const rows = text.split('\n').map((row) => row.split(','));
+              setOriginalTableData(rows);
+              setTableData(rows);
+              toast({
+                title: t('notice.fileTypeFallback'),
+                description: t('notice.treatedAsCSV'),
+                duration: 3000,
+              });
+              return;
+            } catch (csvError) {
+              throw new Error(t('error.bothParsingFailed'));
+            }
+          }
+          throw parseError;
+        }
+      } else {
+        throw new Error(t('error.invalidFileType'));
+      }
+
+      setCurrentPage(1);
+      setTimeout(() => setFadeIn(true), 100);
+    } catch (error) {
+      console.error('Full error details:', error);
+      toast({
+        title: t('error.readError'),
+        description: error instanceof Error ? 
+          `${error.message} (${file.name})` : 
+          t('error.unexpected'),
+        duration: 5000,
+      });
       setTableData(null);
       setOriginalTableData(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGenerateCommand = async () => {
-  if (!tableData) {
-    toast({
-      title: t('toast.noDatasetTitle'),
-      description: t('toast.noDatasetDesc'),
-      duration: 5000,
-    });
-    return;
-  }
-
-  if (!userInput) {
-    toast({
-      title: t('toast.noPromptTitle'),
-      description: t('toast.noPromptDesc'),
-      duration: 5000,
-    });
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const csvData = tableData.map((row) => row.join(',')).join('\n');
-
-    // Determine the endpoint based on keywords
-    const isChartRequest = /chart|graph|plot|visualize/i.test(userInput);
-    const endpoint = isChartRequest
-      ? 'http://localhost:8000/generate-chart/'
-      : 'http://localhost:8000/process-command/';
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail);
+    if (!tableData) {
+      toast({
+        title: t('toast.noDatasetTitle'),
+        description: t('toast.noDatasetDesc'),
+        duration: 5000,
+      });
+      return;
     }
 
-    const result = await response.json();
+    if (!userInput) {
+      toast({
+        title: t('toast.noPromptTitle'),
+        description: t('toast.noPromptDesc'),
+        duration: 5000,
+      });
+      return;
+    }
 
-    if (result.type === "table") {
-      setCurrentTab('table');
-      const parsedData = JSON.parse(result.data);
-      if (parsedData?.columns && parsedData?.data) {
-        const updatedTableData = [parsedData.columns, ...parsedData.data];
-        setTableData(updatedTableData);
+    setLoading(true);
+
+    try {
+      const csvData = tableData.map((row) => row.join(',')).join('\n');
+
+      const isChartRequest = /chart|graph|plot|visualize|gráfico|grafico|/i.test(userInput);
+      const endpoint = isChartRequest
+        ? 'https://aida-backend.onrender.com/generate-chart/'
+        : 'https://aida-backend.onrender.com/process-command/';
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail);
+      }
+
+      const result = await response.json();
+
+      if (result.type === "table") {
+        setCurrentTab('table');
+        const parsedData = JSON.parse(result.data);
+        if (parsedData?.columns && parsedData?.data) {
+          const updatedTableData = [parsedData.columns, ...parsedData.data];
+          setTableData(updatedTableData);
+        } else {
+          throw new Error(t('error.unexpectedResponse'));
+        }
+      } else if (result.type === "graph") {
+        setCurrentTab('chart')
+        const graphData = result.graph;
+        setGraphData(`data:image/png;base64,${graphData}`);
       } else {
         throw new Error(t('error.unexpectedResponse'));
       }
-    } else if (result.type === "graph") {
-      setCurrentTab('chart')
-      const graphData = result.graph;
-      setGraphData(`data:image/png;base64,${graphData}`);
-    } else {
-      throw new Error(t('error.unexpectedResponse'));
+    } catch (error) {
+      console.error('Error generating pandas command:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : t('error.unexpected'),
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('Error generating pandas command:', error);
-    toast({
-      title: 'Error',
-      description: error instanceof Error ? error.message : t('error.unexpected'),
-      duration: 5000,
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
@@ -217,7 +279,7 @@ export default function Home() {
           <div className='flex flex-col items-center'>
             <Input
               type="file"
-              accept=".csv"
+              accept=".csv,.json"
               onChange={handleFileUpload}
               ref={fileInputRef}
               className="hidden"
@@ -262,15 +324,22 @@ export default function Home() {
                 </Select>
               </div>
             </div>
-      </div>
+          </div>
 
           {loading ? (
             <Loader />
           ) : tableData && !isFullScreen && !graphData ? (
             <>
-              <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
-                <Button className='place-self-end mb-2' variant={'ghost'} onClick={toggleFullScreen}>{t('expandTable')}<FaExpandAlt /> </Button>
-                <Table>
+              <div className="relative max-h-[300px] w-full overflow-auto">
+                <Button 
+                  className='absolute right-0 top-0 mb-2 z-10' 
+                  variant={'ghost'} 
+                  onClick={toggleFullScreen}
+                  aria-label={t('expandTable')}
+                >
+                  {t('expandTable')}<FaExpandAlt />
+                </Button>
+                <Table className="min-w-full">
                   <TableHeader>
                     <TableRow className='bg-gray-200'>
                       {tableData[0].map((header, index) => (
@@ -284,7 +353,7 @@ export default function Home() {
                     {paginatedData?.map((row, rowIndex) => (
                       <TableRow key={rowIndex}>
                         {row.map((cell, cellIndex) => (
-                          <TableCell key={cellIndex}>{cell}</TableCell>
+                          <TableCell key={`${rowIndex}-${cellIndex}`}>{cell}</TableCell>
                         ))}
                       </TableRow>
                     ))}
@@ -294,85 +363,7 @@ export default function Home() {
               
               <div>
                 {rowsPerPage !== "all" && (
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-                      className="cursor-pointer"
-                    />
-                  </PaginationItem>
-                  {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
-                  {Array.from(
-                    { length: Math.min(7, totalPages) },
-                    (_, i) => currentPage - 3 + i
-                  )
-                    .filter((page) => page > 1 && page < totalPages)
-                    .map((page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          href="#"
-                          onClick={() => setCurrentPage(page)}
-                          className={page === currentPage ? "font-bold" : ""}
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                  {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
-                  <PaginationItem>
-                    <PaginationLink href="#" onClick={() => setCurrentPage(totalPages)}>
-                      {totalPages}
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-                      className="cursor-pointer"
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
-            </div>
-          </>
-          ) : graphData && (
-            <>
-            <Tabs value={currentTab} defaultValue="chart">
-              <TabsList>
-                <TabsTrigger onClick={() => setCurrentTab('table')} value="table">{t('table')}</TabsTrigger>
-                <TabsTrigger onClick={() => setCurrentTab('chart')} value="chart">{t('chart')}</TabsTrigger>
-              </TabsList>
-
-              <TabsContent onChange={() => setCurrentTab('table')} value="table">
-                <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
-                  <Button className="place-self-end mb-2" variant={'ghost'} onClick={toggleFullScreen}>
-                    {t('expandTable')}<FaExpandAlt />
-                  </Button>
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-200">
-                        {tableData![0].map((header, index) => (
-                          <TableCell key={index} className="font-semibold">
-                            {header}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedData?.map((row, rowIndex) => (
-                        <TableRow key={rowIndex}>
-                          {row.map((cell, cellIndex) => (
-                            <TableCell key={cellIndex}>{cell}</TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-                <div>
-                  {rowsPerPage !== "all" && (
-                    <Pagination>
+                  <Pagination>
                     <PaginationContent>
                       <PaginationItem>
                         <PaginationPrevious
@@ -411,92 +402,104 @@ export default function Home() {
                       </PaginationItem>
                     </PaginationContent>
                   </Pagination>
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent onChange={() => setCurrentTab('chart')} value="chart">
-                {graphData && (
-                  <div className="flex justify-center items-center">
-                    <Image
-                      src={graphData}
-                      alt={t('generatedGraph')}
-                      width={800}
-                      height={600}
-                      priority
-                    />
-
-                  {/* <Card className="flex flex-col">
-                        <CardHeader className="items-center pb-0">
-                          <CardTitle>Pie Chart - Donut with Text</CardTitle>
-                          <CardDescription>January - June 2024</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1 pb-0">
-                          <ChartContainer
-                            config={chartConfig}
-                            className="mx-auto aspect-square max-h-[250px]"
-                          >
-                            <PieChart>
-                              <ChartTooltip
-                                cursor={false}
-                                content={<ChartTooltipContent hideLabel />}
-                              />
-                              <Pie
-                                data={parsedGraphData}
-                                dataKey="visitors"
-                                nameKey="browser"
-                                innerRadius={60}
-                                strokeWidth={5}
-                              >
-                                <Label
-                                  content={({ viewBox }) => {
-                                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                                      return (
-                                        <text
-                                          x={viewBox.cx}
-                                          y={viewBox.cy}
-                                          textAnchor="middle"
-                                          dominantBaseline="middle"
-                                        >
-                                          <tspan
-                                            x={viewBox.cx}
-                                            y={viewBox.cy}
-                                            className="fill-foreground text-3xl font-bold"
-                                          >
-                                            teste
-                                          </tspan>
-                                          <tspan
-                                            x={viewBox.cx}
-                                            y={(viewBox.cy || 0) + 24}
-                                            className="fill-muted-foreground"
-                                          >
-                                            Visitors
-                                          </tspan>
-                                        </text>
-                                      )
-                                    }
-                                  }}
-                                />
-                              </Pie>
-                            </PieChart>
-                          </ChartContainer>
-                        </CardContent>
-                        <CardFooter className="flex-col gap-2 text-sm">
-                          <div className="flex items-center gap-2 font-medium leading-none">
-                            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-                          </div>
-                          <div className="leading-none text-muted-foreground">
-                            Showing total visitors for the last 6 months
-                          </div>
-                        </CardFooter>
-                      </Card> */}
-                  </div>
                 )}
-              </TabsContent>
-            </Tabs>
-          </>
-        )}
+              </div>
+            </>
+          ) : graphData && (
+            <>
+              <Tabs value={currentTab} defaultValue="chart">
+                <TabsList>
+                  <TabsTrigger onClick={() => setCurrentTab('table')} value="table">{t('table')}</TabsTrigger>
+                  <TabsTrigger onClick={() => setCurrentTab('chart')} value="chart">{t('chart')}</TabsTrigger>
+                </TabsList>
 
+                <TabsContent value="table">
+                  <div className="relative max-h-[300px] w-full overflow-auto">
+                    <Button className="absolute right-0 top-0 mb-2 z-10" variant={'ghost'} onClick={toggleFullScreen}>
+                      {t('expandTable')}<FaExpandAlt />
+                    </Button>
+                    <Table className="min-w-full">
+                      <TableHeader>
+                        <TableRow className="bg-gray-200">
+                          {tableData![0].map((header, index) => (
+                            <TableCell key={index} className="font-semibold">
+                              {header}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {paginatedData?.map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            {row.map((cell, cellIndex) => (
+                              <TableCell key={cellIndex}>{cell}</TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <div>
+                    {rowsPerPage !== "all" && (
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious
+                              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                              className="cursor-pointer"
+                            />
+                          </PaginationItem>
+                          {currentPage > 4 && totalPages > 10 && <PaginationEllipsis />}
+                          {Array.from(
+                            { length: Math.min(7, totalPages) },
+                            (_, i) => currentPage - 3 + i
+                          )
+                            .filter((page) => page > 1 && page < totalPages)
+                            .map((page) => (
+                              <PaginationItem key={page}>
+                                <PaginationLink
+                                  href="#"
+                                  onClick={() => setCurrentPage(page)}
+                                  className={page === currentPage ? "font-bold" : ""}
+                                >
+                                  {page}
+                                </PaginationLink>
+                              </PaginationItem>
+                            ))}
+                          {currentPage < totalPages - 3 && totalPages > 10 && <PaginationEllipsis />}
+                          <PaginationItem>
+                            <PaginationLink href="#" onClick={() => setCurrentPage(totalPages)}>
+                              {totalPages}
+                            </PaginationLink>
+                          </PaginationItem>
+                          <PaginationItem>
+                            <PaginationNext
+                              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                              className="cursor-pointer"
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="chart">
+                  {graphData && (
+                    <div className="flex justify-center items-center">
+                      <Image
+                        src={graphData}
+                        alt={t('generatedGraph')}
+                        width={800}
+                        height={600}
+                        priority
+                      />
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
 
           {isFullScreen && tableData && (
             <FullScreenTableModal
@@ -521,6 +524,7 @@ export default function Home() {
           )}
 
         </main>
+     
       </div>
     </I18nextProvider>
   );

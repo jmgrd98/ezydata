@@ -14,7 +14,6 @@ const resources = {
       noDatasetDescription: "Please upload a CSV file.",
       noPrompt: "No prompt provided.",
       noPromptDescription: "Please write a prompt.",
-      error: "Error",
       unexpectedError: "An unexpected error occurred.",
       invalidFileType: "Invalid file type. Only CSV files are allowed.",
       paginationPrevious: "Previous",
@@ -52,6 +51,13 @@ const resources = {
           noCreditCard: "No credit card required.",
         },
       },
+
+      error: {
+        jsonNotArray: "JSON data must be an array of objects",
+        jsonEmpty: "JSON array is empty",
+        jsonInvalidStructure:
+          "Invalid JSON structure - must be array of objects",
+      },
     },
   },
   pt: {
@@ -65,7 +71,6 @@ const resources = {
       noDatasetDescription: "Por favor, envie um arquivo CSV.",
       noPrompt: "Nenhuma instrução fornecida.",
       noPromptDescription: "Por favor, escreva uma instrução.",
-      error: "Erro",
       unexpectedError: "Ocorreu um erro inesperado.",
       invalidFileType:
         "Tipo de arquivo inválido. Apenas arquivos CSV são permitidos.",
@@ -103,6 +108,13 @@ const resources = {
           generateButton: "Comece agora",
           noCreditCard: "Totalmente gratuito.",
         },
+      },
+
+      error: {
+        jsonNotArray: "JSON precisa ser um array de objetos",
+        jsonEmpty: "JSON array vazio",
+        jsonInvalidStructure:
+          "Estrutura JSON inválida - precisa ser array de objetos",
       },
     },
   },
