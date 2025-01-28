@@ -292,43 +292,58 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
               {t('upload')}
             </Button>}
 
-            <div
-                className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
-                  fadeIn ? 'opacity-100' : 'opacity-0'
-                }`}
-              >
-              <Textarea
-                placeholder={t('textareaPlaceholder')}
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
+            <div className="flex flex-col items-center">
+              <Input
+                type="file"
+                accept=".csv,.json"
+                onChange={handleFileUpload}
+                ref={fileInputRef}
+                className="hidden"
               />
-
-              <div className="flex items-center justify-center m-4 gap-4">
-                <Button onClick={handleGenerateCommand} disabled={loading}>
-                  <BsStars />
-                  {t('generate')}
+              {!tableData && (
+                <Button size="xl" onClick={triggerFileUpload}>
+                  <TiUpload width={40} height={40} />
+                  {t('upload')}
                 </Button>
+              )}
 
-                <Button variant="destructive" onClick={handleClearTable}>
-                  <IoMdRefresh/>
-                  {t('clear')}
-                </Button>
+              {tableData && (
+                <div className="text-center flex flex-col items-center">
+                  <Textarea
+                    placeholder={t('textareaPlaceholder')}
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
+                  />
 
-                <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={t('rowsPerPage')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                    <SelectItem value="all">{t('all')}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                  <div className="flex items-center justify-center m-4 gap-4">
+                    <Button onClick={handleGenerateCommand} disabled={loading}>
+                      <BsStars />
+                      {t('generate')}
+                    </Button>
+
+                    <Button variant="destructive" onClick={handleClearTable}>
+                      <IoMdRefresh />
+                      {t('clear')}
+                    </Button>
+
+                    <Select
+                      onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder={t('rowsPerPage')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                        <SelectItem value="all">{t('all')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
