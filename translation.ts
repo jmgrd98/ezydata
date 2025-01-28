@@ -7,7 +7,7 @@ const resources = {
     translation: {
       title: "You don't need to know Python to explore your data.",
       upload: "Upload dataset",
-      generate: "Generate pandas command",
+      generate: "Generate",
       clear: "Clear Table",
       rowsPerPage: "Rows per page",
       noDataset: "No dataset provided.",
@@ -64,7 +64,7 @@ const resources = {
     translation: {
       title: "Você não precisa saber Python para explorar seus dados.",
       upload: "Enviar conjunto de dados",
-      generate: "Gerar comando pandas",
+      generate: "Gerar",
       clear: "Limpar Tabela",
       rowsPerPage: "Linhas por página",
       noDataset: "Nenhum conjunto de dados fornecido.",

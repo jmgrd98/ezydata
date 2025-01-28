@@ -30,6 +30,7 @@ import FullScreenTableModal from '@/components/FullscreenTableModal/FullScreenTa
 import { FaExpandAlt } from "react-icons/fa";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
+import { TiUpload } from "react-icons/ti";
 
 export default function Home() {
   const { toast } = useToast();
@@ -159,7 +160,7 @@ export default function Home() {
                 duration: 3000,
               });
               return;
-            } catch (csvError) {
+            } catch {
               throw new Error(t('error.bothParsingFailed'));
             }
           }
@@ -325,6 +326,7 @@ export default function Home() {
             />
 
             <Button size="xl" onClick={triggerFileUpload}>
+              <TiUpload width={40} height={40} />
               {t('upload')}
             </Button>
 
@@ -369,9 +371,9 @@ export default function Home() {
             <Loader />
           ) : tableData && !isFullScreen && !graphData ? (
             <>
-              <div className="relative max-h-[300px] w-full overflow-auto">
+              <div className="relative max-h-[300px] w-full flex flex-col overflow-auto">
                 <Button 
-                  className='absolute right-0 top-0 mb-2 z-10' 
+                  className='align-self-end w-fit mb-2 z-10' 
                   variant={'ghost'} 
                   onClick={toggleFullScreen}
                   aria-label={t('expandTable')}
