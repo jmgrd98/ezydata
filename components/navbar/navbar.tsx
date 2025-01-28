@@ -6,9 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import Flag from 'react-world-flags'
 import i18n from "@/translation"
 import { useTranslation } from 'react-i18next'
+import { useRouter } from 'next/navigation'
 
 const Navbar = ({ children }: { children?: React.ReactNode }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
+  const router = useRouter();
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng)
   }
@@ -19,7 +21,7 @@ const Navbar = ({ children }: { children?: React.ReactNode }) => {
         {children}
       </div>
 
-      <p className="text-3xl font-bold align-self-start">EZYDATA</p>
+      <p className="comfortaa text-3xl font-bold align-self-start cursor-pointer" onClick={() => router.push('/dashboard')}>EZYDATA</p>
       
       <div className='flex items-center gap-5'>
         <Select

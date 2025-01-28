@@ -31,10 +31,20 @@ import { FaExpandAlt } from "react-icons/fa";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import { TiUpload } from "react-icons/ti";
+import { FaRegSave } from "react-icons/fa";
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db, Project } from '@/firebase/db';
+import { useUser } from '@clerk/nextjs';
+import { BsSave2 } from "react-icons/bs";
+import { IoMdRefresh } from "react-icons/io";
+import { useRouter } from 'next/navigation';
+import { IoSend } from "react-icons/io5";
 
 export default function Home() {
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { user } = useUser();
+  const router = useRouter();
 
   const [tableData, setTableData] = useState<string[][] | null>(null);
   const [originalTableData, setOriginalTableData] = useState<string[][] | null>(null);
@@ -47,16 +57,7 @@ export default function Home() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [graphData, setGraphData] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'table' | 'chart'>("table");
-
-  let parsedGraphData: { name: string; value: number }[] | null = null;
-
-  if (graphData) {
-    try {
-      parsedGraphData = JSON.parse(graphData);
-    } catch (error) {
-      console.error("Error parsing graph data:", error);
-    }
-  }
+  const [projects] = useState<Project[]>([]);
 
   const totalPages =
     tableData && tableData.length > 0
@@ -71,12 +72,12 @@ export default function Home() {
       : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
 
   useEffect(() => {
-    detectLanguage();
-  }, []);
+    if (!user) router.push('/')
+  }, [router, user]);
 
   useEffect(() => {
-    console.log('PARSED', parsedGraphData)
-  }, [parsedGraphData])
+    detectLanguage();
+  }, []);
 
   const detectLanguage = async () => {
     try {
@@ -188,52 +189,23 @@ export default function Home() {
     }
   };
 
-  const handleGenerateCommand = async () => {
-
-  if (!tableData) {
-    toast({
-      title: t('toast.noDatasetTitle'),
-      description: t('toast.noDatasetDesc'),
-      duration: 5000,
-    });
-    return;
-  }
-
-  if (!userInput) {
-    toast({
-      title: t('toast.noPromptTitle'),
-      description: t('toast.noPromptDesc'),
-      duration: 5000,
-    });
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const csvData = tableData.map((row) => row.join(',')).join('\n');
-
-    // Determine the endpoint based on keywords
-    const isChartRequest = /chart|graph|plot|visualize/i.test(userInput);
-    // const endpoint = isChartRequest
-    //   ? `${process.env.API_ROOT_URL_DEV}/generate-chart/`
-    //   : `${process.env.API_ROOT_URL_DEV}/process-command/`;
-    console.log('ENDPOINT', process.env.NEXT_PUBLIC_API_ROOT_URL_PROD)
-    const endpoint = isChartRequest
-    ? `${process.env.NEXT_PUBLIC_API_ROOT_URL_PROD}/generate-chart/`
-    : `${process.env.NEXT_PUBLIC_API_ROOT_URL_PROD}/process-command/`;
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail);
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleGenerateCommand();
     }
+  };
 
+  const handleGenerateCommand = async () => {
+    if (!tableData) {
+      toast({
+        title: t('toast.noDatasetTitle'),
+        description: t('toast.noDatasetDesc'),
+        duration: 5000,
+      });
+      return;
+    }
+  
     if (!userInput) {
       toast({
         title: t('toast.noPromptTitle'),
@@ -242,60 +214,54 @@ export default function Home() {
       });
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
       const csvData = tableData.map((row) => row.join(',')).join('\n');
-
-      const isChartRequest = /chart|graph|plot|visualize|gráfico|grafico|/i.test(userInput);
+      
+      const isChartRequest = /chart|graph|plot|visualize|gráfico|grafico/i.test(userInput);
       const endpoint = isChartRequest
-        ? 'https://aida-backend.onrender.com/generate-chart/'
-        : 'https://aida-backend.onrender.com/process-command/';
-
+        ? `${process.env.NEXT_PUBLIC_API_ROOT_URL}/generate-chart/`
+        : `${process.env.NEXT_PUBLIC_API_ROOT_URL}/process-command/`;
+  
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
       });
-
+  
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.detail);
       }
-
+  
       const result = await response.json();
 
+      console.log('RESULT', result)
+  
       if (result.type === "table") {
         setCurrentTab('table');
         const parsedData = JSON.parse(result.data);
         if (parsedData?.columns && parsedData?.data) {
           const updatedTableData = [parsedData.columns, ...parsedData.data];
           setTableData(updatedTableData);
-        } else {
-          throw new Error(t('error.unexpectedResponse'));
         }
       } else if (result.type === "graph") {
-        setCurrentTab('chart')
-        const graphData = result.graph;
-        setGraphData(`data:image/png;base64,${graphData}`);
-      } else {
-        throw new Error(t('error.unexpectedResponse'));
+        setCurrentTab('chart');
+        setGraphData(`data:image/png;base64,${result.graph}`);
       }
     } catch (error) {
-      console.error('Error generating pandas command:', error);
+      console.error('Error:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : t('error.unexpected'),
+        title: 'Error generating command',
+        description: error instanceof Error ? error.message : 'Unknown error',
         duration: 5000,
-      });
+    });
     } finally {
       setLoading(false);
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
 
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
@@ -310,11 +276,64 @@ export default function Home() {
     setTimeout(() => setFadeIn(true), 100);
   };
 
+  const handleSaveGraph = () => {
+    if (graphData) {
+      const link = document.createElement('a');
+      link.href = graphData;
+      link.download = 'graph.png';
+      link.click();
+    }
+  }
+
+  const saveProject = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!user) return;
+    console.log('TABLE', tableData)
+    setLoading(true);
+    try {
+      await addDoc(collection(db, 'projects'), {
+        name: `Projeto ${projects.length + 1}`,
+        table: JSON.stringify(tableData),
+        chart: graphData,                  
+        ownerId: user.id,
+        createdAt: serverTimestamp()
+      });
+      toast({
+        title: 'Project saved successfully',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error adding project:', error);
+      toast({
+        title: 'Error saving project',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <I18nextProvider i18n={i18n}>
-      <div className="flex flex-col items-center justify-center p-4 h-full">
+      <div className="w-full flex flex-col items-center justify-center p-4 h-full">
         <Toaster />
-        <main className="flex flex-col items-center justify-evenly w-full max-w-3xl mx-auto h-full max-h-full">
+        <main className="w-full flex flex-col items-center justify-evenly mx-auto h-full max-h-full">
+
+        {tableData && (
+              <div className='w-full flex align-items justify-between mb-5'>
+                <Button size="sm" onClick={triggerFileUpload}>
+                  <TiUpload width={40} height={40} />
+                  {t('upload')}
+                </Button>
+
+                <form onSubmit={saveProject}>
+                  <Button type="submit" size="sm">
+                    <FaRegSave />
+                    {t('saveProject')}
+                  </Button>
+                </form>
+              </div>
+            )}
 
           <div className='flex flex-col items-center'>
             <Input
@@ -325,46 +344,12 @@ export default function Home() {
               className="hidden"
             />
 
-            <Button size="xl" onClick={triggerFileUpload}>
+            {!tableData && <Button size="xl" onClick={triggerFileUpload}>
               <TiUpload width={40} height={40} />
               {t('upload')}
-            </Button>
+            </Button>}
 
-            <div
-                className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
-                  fadeIn ? 'opacity-100' : 'opacity-0'
-                }`}
-              >
-              <Textarea
-                placeholder={t('textareaPlaceholder')}
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
-              />
-
-              <div className="flex items-center justify-center m-4 gap-4">
-                <Button onClick={handleGenerateCommand} disabled={loading}>
-                  {t('generate')}
-                </Button>
-
-                <Button variant="destructive" onClick={handleClearTable}>
-                  {t('clear')}
-                </Button>
-
-                <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={t('rowsPerPage')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                    <SelectItem value="all">{t('all')}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            
           </div>
 
           {loading ? (
@@ -373,7 +358,7 @@ export default function Home() {
             <>
               <div className="relative max-h-[300px] w-full flex flex-col overflow-auto">
                 <Button 
-                  className='align-self-end w-fit mb-2 z-10' 
+                  className=' w-fit mb-2 z-10' 
                   variant={'ghost'} 
                   onClick={toggleFullScreen}
                   aria-label={t('expandTable')}
@@ -456,9 +441,14 @@ export default function Home() {
 
                 <TabsContent value="table">
                   <div className="relative max-h-[300px] w-full overflow-auto">
-                    <Button className="absolute right-0 top-0 mb-2 z-10" variant={'ghost'} onClick={toggleFullScreen}>
-                      {t('expandTable')}<FaExpandAlt />
-                    </Button>
+                  <Button 
+                        className=' w-fit mb-2 z-10' 
+                        variant={'ghost'} 
+                        onClick={toggleFullScreen}
+                        aria-label={t('expandTable')}
+                      >
+                        {t('expandTable')}<FaExpandAlt />
+                  </Button>
                     <Table className="min-w-full">
                       <TableHeader>
                         <TableRow className="bg-gray-200">
@@ -528,11 +518,15 @@ export default function Home() {
                 <TabsContent value="chart">
                   {graphData && (
                     <div className="flex justify-center items-center">
+                      <BsSave2 
+                        className='border rounded border-gray-500 absolute top-2 right-2 cursor-pointer'
+                        onClick={handleSaveGraph}
+                      />
                       <Image
                         src={graphData}
                         alt={t('generatedGraph')}
-                        width={800}
-                        height={600}
+                        width={600}
+                        height={400}
                         priority
                       />
                     </div>
@@ -541,6 +535,44 @@ export default function Home() {
               </Tabs>
             </>
           )}
+
+              <div
+                className={`w-full text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
+                  fadeIn ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+              <div className='w-full flex items-center justify-center gap-5'>
+                <Textarea
+                  placeholder={t('textareaPlaceholder')}
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
+                  onKeyDown={handleKeyPress}
+                />
+                {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+              </div>
+
+              <div className="flex items-center justify-center m-4 gap-4">
+
+                <Button variant="destructive" onClick={handleClearTable}>
+                  <IoMdRefresh/>
+                  {t('clear')}
+                </Button>
+
+                <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={t('rowsPerPage')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
           {isFullScreen && tableData && (
             <FullScreenTableModal
@@ -561,6 +593,7 @@ export default function Home() {
               graphData={graphData}
               currentTab={currentTab}
               setCurrentTab={setCurrentTab}
+              handleKeyPress={handleKeyPress}
             />
           )}
 
