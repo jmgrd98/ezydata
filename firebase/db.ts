@@ -1,9 +1,7 @@
-// db.ts
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
-import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBZIHh4LbNVoWmDzpJG8Vyhltdb6H9qxlk",
@@ -20,7 +18,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
-const analytics = getAnalytics(app);
 
 export interface Project {
   id?: string;
@@ -31,4 +28,4 @@ export interface Project {
   createdAt?: Date;
 }
 
-export { app, db, auth, storage, analytics };
+export { app, db, auth, storage };
