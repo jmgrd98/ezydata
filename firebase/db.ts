@@ -4,13 +4,13 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBZIHh4LbNVoWmDzpJG8Vyhltdb6H9qxlk",
-  authDomain: "ezydata-82af5.firebaseapp.com",
-  projectId: "ezydata-82af5",
-  storageBucket: "ezydata-82af5.firebasestorage.app",
-  messagingSenderId: "1039245567079",
-  appId: "1:1039245567079:web:950b6dc65942087772a0c2",
-  measurementId: "G-EP3NFWBBDC",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
