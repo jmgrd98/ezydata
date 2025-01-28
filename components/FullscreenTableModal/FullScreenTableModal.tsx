@@ -65,7 +65,7 @@ const FullScreenTableModal = ({
   const { t } = useTranslation();
 
   return (
-    <div className={isFullScreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>
+    <div className={isFullScreen ? 'w-full fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>
       <div className="w-full flex items-center justify-center gap-5">
         <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
           <SelectTrigger className="w-[180px]">
@@ -101,11 +101,11 @@ const FullScreenTableModal = ({
         />
       </div>
 
-      <div className="w-full flex-1 flex justify-center items-center overflow-auto">
+      <div className="w-screen flex-1 flex justify-center items-center overflow-auto">
         {loading ? (
           <Loader />
         ) : tableData && tableData.length > 0 && !graphData ? (
-          <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
+          <div className="w-full mx-5 flex flex-col relative max-h-[500px] overflow-y-scroll no-scrollbar">
             {!isFullScreen && (
               <Button
                 className="place-self-end mb-2"
@@ -115,7 +115,7 @@ const FullScreenTableModal = ({
                 {t('expandTable')}
               </Button>
             )}
-            <Table>
+            <Table className='w-full'>
               <TableHeader>
                 <TableRow className="bg-gray-200">
                   {tableData[0].map((header, index) => (

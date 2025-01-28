@@ -18,7 +18,7 @@ const AddProjectModal = ({
   const [table, setTable] = useState('');
   const [chart, setChart] = useState('');
   const [loading, setLoading] = useState(false)
-  const { user } = useUser() // Get user from Clerk
+  const { user } = useUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

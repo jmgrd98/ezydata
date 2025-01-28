@@ -44,7 +44,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </SheetContent>
 
-          <main className="flex-1 overflow-auto p-4">
+          <main className="w-full flex-1 overflow-auto p-4">
             {children}
           </main>
         </div>
