@@ -22,6 +22,7 @@ import { Button } from '../ui/button';
 import { Loader } from '@/components/Loader/Loader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import Image from 'next/image';
+import { IoSend } from 'react-icons/io5';
 
 interface IFullScreenTableProps {
   tableData: string[][];
@@ -40,7 +41,8 @@ interface IFullScreenTableProps {
   handleClearTable: () => void;
   graphData: string | null;
   currentTab: 'table' | 'chart';
-  setCurrentTab: React.Dispatch<React.SetStateAction<'table' | 'chart'>>
+  setCurrentTab: React.Dispatch<React.SetStateAction<'table' | 'chart'>>;
+  handleKeyPress: (e: React.KeyboardEvent) => void;
 }
 
 const FullScreenTableModal = ({
@@ -60,17 +62,18 @@ const FullScreenTableModal = ({
   handleClearTable,
   graphData,
   currentTab,
-  setCurrentTab
+  setCurrentTab,
+  handleKeyPress
 }: IFullScreenTableProps) => {
   const { t } = useTranslation();
 
   return (
     <div className={isFullScreen ? 'w-full fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>
-      <div className="w-screen flex-1 flex justify-center items-center overflow-auto">
+      <div className="w-full flex-1 flex justify-center items-center overflow-auto">
         {loading ? (
           <Loader />
         ) : tableData && tableData.length > 0 && !graphData ? (
-          <div className="w-full mx-5 flex flex-col relative max-h-[500px] overflow-y-scroll no-scrollbar">
+          <div className="w-full h-full mx-5 flex flex-col relative max-h-[500px] overflow-y-scroll no-scrollbar">
             {!isFullScreen && (
               <Button
                 className="place-self-end mb-2"
@@ -144,15 +147,15 @@ const FullScreenTableModal = ({
             )}
           </div>
         ) : graphData ? (
-          <Tabs value={currentTab} defaultValue="chart">
+          <Tabs value={currentTab} className="w-full h-full px-4">
             <TabsList>
               <TabsTrigger onClick={() => setCurrentTab('table')} value="table">{t('table')}</TabsTrigger>
               <TabsTrigger onClick={() => setCurrentTab('chart')} value="chart">{t('chart')}</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="table">
-              <div className="flex flex-col relative max-h-[300px] overflow-y-scroll no-scrollbar">
-                <Table>
+            <TabsContent value="table" className="w-full h-full mt-4">
+              <div className="w-full h-full flex flex-col relative max-h-[500px] overflow-y-scroll no-scrollbar">
+                <Table className='w-full'>
                   <TableHeader>
                     <TableRow className="bg-gray-200">
                       {tableData![0].map((header, index) => (
@@ -175,13 +178,14 @@ const FullScreenTableModal = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="chart">
-              <div className="flex justify-center items-center">
+            <TabsContent value="chart" className="w-full h-full mt-4">
+              <div className="flex justify-center items-center h-full w-full">
                 <Image
                   src={graphData}
                   alt={t('generatedGraph')}
-                  width={600}
-                  height={400}
+                  width={800}
+                  height={600}
+                  className="object-contain w-full h-full"
                   priority
                 />
               </div>
@@ -192,7 +196,7 @@ const FullScreenTableModal = ({
         )}
       </div>
 
-      <div className="w-full flex items-center justify-center gap-5">
+      <div className="w-full flex items-center justify-center gap-5 p-4 border-t">
         <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={t('rowsPerPage')} />
@@ -206,16 +210,16 @@ const FullScreenTableModal = ({
           </SelectContent>
         </Select>
 
-        <Textarea
-          placeholder={t('textareaPlaceholder')}
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          className="mx-auto m-2 border border-gray-300 rounded p-2 w-full max-w-md"
-        />
-
-        <Button onClick={handleGenerateCommand} disabled={loading}>
-          {t('generate')}
-        </Button>
+        <div className='w-full flex items-center justify-center gap-5'>
+          <Textarea
+            placeholder={t('textareaPlaceholder')}
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
+            onKeyDown={handleKeyPress}
+          />
+          {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+        </div>
 
         <Button variant="destructive" onClick={handleClearTable} disabled={loading}>
           {t('clear')}

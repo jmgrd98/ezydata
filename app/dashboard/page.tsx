@@ -38,6 +38,7 @@ import { useUser } from '@clerk/nextjs';
 import { BsSave2, BsStars } from "react-icons/bs";
 import { IoMdRefresh } from "react-icons/io";
 import { useRouter } from 'next/navigation';
+import { IoSend } from "react-icons/io5";
 
 export default function Home() {
   const { toast } = useToast();
@@ -185,6 +186,13 @@ export default function Home() {
       setOriginalTableData(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleGenerateCommand();
     }
   };
 
@@ -517,8 +525,8 @@ export default function Home() {
                       <Image
                         src={graphData}
                         alt={t('generatedGraph')}
-                        width={800}
-                        height={600}
+                        width={600}
+                        height={400}
                         priority
                       />
                     </div>
@@ -529,22 +537,22 @@ export default function Home() {
           )}
 
               <div
-                className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
+                className={`w-full text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
                   fadeIn ? 'opacity-100' : 'opacity-0'
                 }`}
               >
-              <Textarea
-                placeholder={t('textareaPlaceholder')}
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
-              />
+              <div className='w-full flex items-center justify-center gap-5'>
+                <Textarea
+                  placeholder={t('textareaPlaceholder')}
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
+                  onKeyDown={handleKeyPress}
+                />
+                {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+              </div>
 
               <div className="flex items-center justify-center m-4 gap-4">
-                <Button onClick={handleGenerateCommand} disabled={loading}>
-                  <BsStars />
-                  {t('generate')}
-                </Button>
 
                 <Button variant="destructive" onClick={handleClearTable}>
                   <IoMdRefresh/>
@@ -585,6 +593,7 @@ export default function Home() {
               graphData={graphData}
               currentTab={currentTab}
               setCurrentTab={setCurrentTab}
+              handleKeyPress={handleKeyPress}
             />
           )}
 

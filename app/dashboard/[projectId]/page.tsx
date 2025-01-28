@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTranslation } from 'react-i18next'
 import { TiUpload } from 'react-icons/ti'
 import { Input } from '@/components/ui/input'
+import { IoSend } from 'react-icons/io5'
 
 interface IProjectPageProps {
   params: {
@@ -198,6 +199,13 @@ export default function ProjectPage({ params }: IProjectPageProps) {
         setLoading(false);
       }
     };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleGenerateCommand();
+        }
+      };
 
   const handleGenerateCommand = async () => {
     if (!tableData) {
@@ -493,20 +501,20 @@ export default function ProjectPage({ params }: IProjectPageProps) {
             </>
           )}
 
-{tableData && (
+              {tableData && (
                 <div className="text-center flex flex-col items-center">
-                  <Textarea
-                    placeholder={t('textareaPlaceholder')}
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
-                  />
+                  <div className='w-full flex items-center justify-center gap-5'>
+                    <Textarea
+                      placeholder={t('textareaPlaceholder')}
+                      value={userInput}
+                      onChange={(e) => setUserInput(e.target.value)}
+                      className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
+                      onKeyDown={handleKeyPress}
+                    />
+                    {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+                  </div>
 
                   <div className="flex items-center justify-center m-4 gap-4">
-                    <Button onClick={handleGenerateCommand} disabled={loading}>
-                      <BsStars />
-                      {t('generate')}
-                    </Button>
 
                     <Button variant="destructive" onClick={handleClearTable}>
                       <IoMdRefresh />
@@ -550,6 +558,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
               graphData={graphData}
               currentTab={currentTab}
               setCurrentTab={setCurrentTab}
+              handleKeyPress={handleKeyPress}
             />
           )}
       </main>
