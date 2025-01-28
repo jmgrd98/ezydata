@@ -66,41 +66,6 @@ const FullScreenTableModal = ({
 
   return (
     <div className={isFullScreen ? 'w-full fixed inset-0 z-50 bg-white overflow-y-auto flex flex-col' : ''}>
-      <div className="w-full flex items-center justify-center gap-5">
-        <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={t('rowsPerPage')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="5">5</SelectItem>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="50">50</SelectItem>
-            <SelectItem value="100">100</SelectItem>
-            <SelectItem value="all">{t('all')}</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Textarea
-          placeholder={t('textareaPlaceholder')}
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          className="mx-auto m-2 border border-gray-300 rounded p-2 w-full max-w-md"
-        />
-
-        <Button onClick={handleGenerateCommand} disabled={loading}>
-          {t('generate')}
-        </Button>
-
-        <Button variant="destructive" onClick={handleClearTable} disabled={loading}>
-          {t('clear')}
-        </Button>
-
-        <IoIosClose
-          className="absolute top-2 right-2 cursor-pointer text-2xl"
-          onClick={toggleFullScreen}
-        />
-      </div>
-
       <div className="w-screen flex-1 flex justify-center items-center overflow-auto">
         {loading ? (
           <Loader />
@@ -225,6 +190,41 @@ const FullScreenTableModal = ({
         ) : (
           <div>{t('noData')}</div>
         )}
+      </div>
+
+      <div className="w-full flex items-center justify-center gap-5">
+        <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder={t('rowsPerPage')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="5">5</SelectItem>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+            <SelectItem value="100">100</SelectItem>
+            <SelectItem value="all">{t('all')}</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Textarea
+          placeholder={t('textareaPlaceholder')}
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          className="mx-auto m-2 border border-gray-300 rounded p-2 w-full max-w-md"
+        />
+
+        <Button onClick={handleGenerateCommand} disabled={loading}>
+          {t('generate')}
+        </Button>
+
+        <Button variant="destructive" onClick={handleClearTable} disabled={loading}>
+          {t('clear')}
+        </Button>
+
+        <IoIosClose
+          className="absolute top-2 right-2 cursor-pointer text-2xl"
+          onClick={toggleFullScreen}
+        />
       </div>
     </div>
   );
