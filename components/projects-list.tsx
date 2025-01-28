@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { db } from '@/firebase/db' // Remove Firebase auth import
 import { Project } from '@/firebase/db'
 import { collection, query, where, onSnapshot, deleteDoc, doc, QuerySnapshot } from 'firebase/firestore'
-import { Button } from '@/components/ui/button'
 import { FaTrash, FaEdit } from 'react-icons/fa'
 import EditProjectModal from './edit-project-modal'
 import { useUser } from '@clerk/nextjs'
@@ -55,7 +54,7 @@ const ProjectsList = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col gap-3">
       {projects.map((project) => (
         <div 
           key={project.id} 
@@ -64,25 +63,15 @@ const ProjectsList = () => {
         >
           <h3 className="text-xl font-bold mb-2">{project.name}</h3>
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-            <Button
-              variant="outline"
-              onClick={(e) => {
+              <FaEdit className='cursor-pointer' size={20} onClick={(e) => {
                 e.stopPropagation();
                 setSelectedProject(project);
                 setIsEditModalOpen(true);
-              }}
-            >
-              <FaEdit className="mr-2" />
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={(e) => {
+              }}/>
+              <FaTrash className='cursor-pointer' size={20} color='red' onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(project.id!);
-              }}
-            >
-              <FaTrash className="mr-2" />
-            </Button>
+              }} />
           </div>
         </div>
       ))}

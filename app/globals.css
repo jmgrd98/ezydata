@@ -76,3 +76,15 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.comfortaa {
+  font-family: var(--font-comfortaa);
+}
+
+.inter {
+  font-family: var(--font-inter);
+}
+
+.montserrat {
+  font-family: var(--font-montserrat);
+}

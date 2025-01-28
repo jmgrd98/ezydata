@@ -23,7 +23,7 @@ export interface Project {
   id?: string;
   name: string;
   table: string;
-  chart: string;
+  charts: string[];
   ownerId: string;
   createdAt?: Date;
 }

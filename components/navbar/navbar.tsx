@@ -21,7 +21,7 @@ const Navbar = ({ children }: { children?: React.ReactNode }) => {
         {children}
       </div>
 
-      <p className="text-3xl font-bold align-self-start cursor-pointer" onClick={() => router.push('/dashboard')}>EZYDATA</p>
+      <p className="comfortaa text-3xl font-bold align-self-start cursor-pointer" onClick={() => router.push('/dashboard')}>EZYDATA</p>
       
       <div className='flex items-center gap-5'>
         <Select

@@ -16,13 +16,13 @@ interface EditProjectModalProps {
 const EditProjectModal = ({ project, onClose }: EditProjectModalProps) => {
   const [name, setName] = useState(project.name)
   const [table, setTable] = useState(project.table)
-  const [chart, setChart] = useState(project.chart)
+  const [charts, setCharts] = useState(project.charts)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setName(project.name)
     setTable(project.table)
-    setChart(project.chart)
+    setCharts(project.charts)
   }, [project])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +34,7 @@ const EditProjectModal = ({ project, onClose }: EditProjectModalProps) => {
       await updateDoc(doc(db, 'projects', project.id), {
         name,
         table,
-        chart
+        charts
       })
       onClose()
     } catch (error) {
@@ -72,8 +72,8 @@ const EditProjectModal = ({ project, onClose }: EditProjectModalProps) => {
               <Label htmlFor="chart">Chart Configuration</Label>
               <Input
                 id="chart"
-                value={chart}
-                onChange={(e) => setChart(e.target.value)}
+                value={charts}
+                onChange={(e) => setCharts([e.target.value])}
                 required
               />
             </div>

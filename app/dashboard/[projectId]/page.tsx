@@ -23,12 +23,12 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Textarea } from '@/components/ui/textarea'
-import { BsStars } from 'react-icons/bs'
 import { IoMdRefresh } from 'react-icons/io'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useTranslation } from 'react-i18next'
 import { TiUpload } from 'react-icons/ti'
 import { Input } from '@/components/ui/input'
+import { IoSend } from 'react-icons/io5'
 
 interface IProjectPageProps {
   params: {
@@ -199,6 +199,13 @@ export default function ProjectPage({ params }: IProjectPageProps) {
       }
     };
 
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleGenerateCommand();
+        }
+      };
+
   const handleGenerateCommand = async () => {
     if (!tableData) {
       toast({
@@ -308,44 +315,6 @@ export default function ProjectPage({ params }: IProjectPageProps) {
                   {t('upload')}
                 </Button>
               )}
-
-              {tableData && (
-                <div className="text-center flex flex-col items-center">
-                  <Textarea
-                    placeholder={t('textareaPlaceholder')}
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
-                  />
-
-                  <div className="flex items-center justify-center m-4 gap-4">
-                    <Button onClick={handleGenerateCommand} disabled={loading}>
-                      <BsStars />
-                      {t('generate')}
-                    </Button>
-
-                    <Button variant="destructive" onClick={handleClearTable}>
-                      <IoMdRefresh />
-                      {t('clear')}
-                    </Button>
-
-                    <Select
-                      onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}
-                    >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder={t('rowsPerPage')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5">5</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                        <SelectItem value="100">100</SelectItem>
-                        <SelectItem value="all">{t('all')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
           </div>
@@ -432,16 +401,23 @@ export default function ProjectPage({ params }: IProjectPageProps) {
           ) : graphData && (
             <>
               <Tabs value={currentTab} defaultValue="chart">
-                <TabsList>
-                  <TabsTrigger onClick={() => setCurrentTab('table')} value="table">{t('table')}</TabsTrigger>
-                  <TabsTrigger onClick={() => setCurrentTab('chart')} value="chart">{t('chart')}</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="table">
-                  <div className="relative max-h-[300px] w-full overflow-auto">
-                    <Button className="absolute right-0 top-0 mb-2 z-10" variant={'ghost'} onClick={toggleFullScreen}>
+                <div className="flex justify-between items-center">
+                  <TabsList>
+                    <TabsTrigger onClick={() => setCurrentTab('table')} value="table">{t('table')}</TabsTrigger>
+                    <TabsTrigger onClick={() => setCurrentTab('chart')} value="chart">{t('chart')}</TabsTrigger>
+                  </TabsList>
+                  
+                    <Button 
+                      className='w-fit mb-2 z-10' 
+                      variant={'ghost'} 
+                      onClick={toggleFullScreen}
+                      aria-label={t('expandTable')}
+                    >
                       {t('expandTable')}<FaExpandAlt />
                     </Button>
+                  
+                </div>
+                <TabsContent value='table'>
                     <Table className="min-w-full">
                       <TableHeader>
                         <TableRow className="bg-gray-200">
@@ -462,7 +438,6 @@ export default function ProjectPage({ params }: IProjectPageProps) {
                         ))}
                       </TableBody>
                     </Table>
-                  </div>
                   <div>
                     {rowsPerPage !== "all" && (
                       <Pagination>
@@ -514,8 +489,8 @@ export default function ProjectPage({ params }: IProjectPageProps) {
                       <Image
                         src={graphData}
                         alt={t('generatedGraph')}
-                        width={800}
-                        height={600}
+                        width={600}
+                        height={400}
                         priority
                       />
                     </div>
@@ -524,6 +499,44 @@ export default function ProjectPage({ params }: IProjectPageProps) {
               </Tabs>
             </>
           )}
+
+              {tableData && (
+                <div className="text-center flex flex-col items-center">
+                  <div className='w-full flex items-center justify-center gap-5'>
+                    <Textarea
+                      placeholder={t('textareaPlaceholder')}
+                      value={userInput}
+                      onChange={(e) => setUserInput(e.target.value)}
+                      className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
+                      onKeyDown={handleKeyPress}
+                    />
+                    {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+                  </div>
+
+                  <div className="flex items-center justify-center m-4 gap-4">
+
+                    <Button variant="destructive" onClick={handleClearTable}>
+                      <IoMdRefresh />
+                      {t('clear')}
+                    </Button>
+
+                    <Select
+                      onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder={t('rowsPerPage')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                        <SelectItem value="all">{t('all')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
 
           {isFullScreen && tableData && (
             <FullScreenTableModal
@@ -544,6 +557,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
               graphData={graphData}
               currentTab={currentTab}
               setCurrentTab={setCurrentTab}
+              handleKeyPress={handleKeyPress}
             />
           )}
       </main>

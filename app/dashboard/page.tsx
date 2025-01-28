@@ -35,13 +35,16 @@ import { FaRegSave } from "react-icons/fa";
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db, Project } from '@/firebase/db';
 import { useUser } from '@clerk/nextjs';
-import { BsStars } from "react-icons/bs";
+import { BsSave2 } from "react-icons/bs";
 import { IoMdRefresh } from "react-icons/io";
+import { useRouter } from 'next/navigation';
+import { IoSend } from "react-icons/io5";
 
 export default function Home() {
   const { toast } = useToast();
   const { t } = useTranslation();
   const { user } = useUser();
+  const router = useRouter();
 
   const [tableData, setTableData] = useState<string[][] | null>(null);
   const [originalTableData, setOriginalTableData] = useState<string[][] | null>(null);
@@ -67,6 +70,10 @@ export default function Home() {
     rowsPerPage === 'all'
       ? tableData?.slice(1)
       : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
+
+  useEffect(() => {
+    if (!user) router.push('/')
+  }, [router, user]);
 
   useEffect(() => {
     detectLanguage();
@@ -182,6 +189,13 @@ export default function Home() {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleGenerateCommand();
+    }
+  };
+
   const handleGenerateCommand = async () => {
     if (!tableData) {
       toast({
@@ -262,11 +276,19 @@ export default function Home() {
     setTimeout(() => setFadeIn(true), 100);
   };
 
+  const handleSaveGraph = () => {
+    if (graphData) {
+      const link = document.createElement('a');
+      link.href = graphData;
+      link.download = 'graph.png';
+      link.click();
+    }
+  }
+
   const saveProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('ENTROU')
     if (!user) return;
-  
+    console.log('TABLE', tableData)
     setLoading(true);
     try {
       await addDoc(collection(db, 'projects'), {
@@ -298,7 +320,7 @@ export default function Home() {
         <main className="w-full flex flex-col items-center justify-evenly mx-auto h-full max-h-full">
 
         {tableData && (
-              <div className='w-full flex align-items justify-between'>
+              <div className='w-full flex align-items justify-between mb-5'>
                 <Button size="sm" onClick={triggerFileUpload}>
                   <TiUpload width={40} height={40} />
                   {t('upload')}
@@ -306,7 +328,7 @@ export default function Home() {
 
                 <form onSubmit={saveProject}>
                   <Button type="submit" size="sm">
-                    <FaRegSave className="mr-2" />
+                    <FaRegSave />
                     {t('saveProject')}
                   </Button>
                 </form>
@@ -327,43 +349,7 @@ export default function Home() {
               {t('upload')}
             </Button>}
 
-            <div
-                className={`text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
-                  fadeIn ? 'opacity-100' : 'opacity-0'
-                }`}
-              >
-              <Textarea
-                placeholder={t('textareaPlaceholder')}
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                className="mt-4 border border-gray-300 rounded p-2 w-full max-w-md"
-              />
-
-              <div className="flex items-center justify-center m-4 gap-4">
-                <Button onClick={handleGenerateCommand} disabled={loading}>
-                  <BsStars />
-                  {t('generate')}
-                </Button>
-
-                <Button variant="destructive" onClick={handleClearTable}>
-                  <IoMdRefresh/>
-                  {t('clear')}
-                </Button>
-
-                <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={t('rowsPerPage')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                    <SelectItem value="all">{t('all')}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            
           </div>
 
           {loading ? (
@@ -372,7 +358,7 @@ export default function Home() {
             <>
               <div className="relative max-h-[300px] w-full flex flex-col overflow-auto">
                 <Button 
-                  className='align-self-end w-fit mb-2 z-10' 
+                  className=' w-fit mb-2 z-10' 
                   variant={'ghost'} 
                   onClick={toggleFullScreen}
                   aria-label={t('expandTable')}
@@ -455,9 +441,14 @@ export default function Home() {
 
                 <TabsContent value="table">
                   <div className="relative max-h-[300px] w-full overflow-auto">
-                    <Button className="absolute right-0 top-0 mb-2 z-10" variant={'ghost'} onClick={toggleFullScreen}>
-                      {t('expandTable')}<FaExpandAlt />
-                    </Button>
+                  <Button 
+                        className=' w-fit mb-2 z-10' 
+                        variant={'ghost'} 
+                        onClick={toggleFullScreen}
+                        aria-label={t('expandTable')}
+                      >
+                        {t('expandTable')}<FaExpandAlt />
+                  </Button>
                     <Table className="min-w-full">
                       <TableHeader>
                         <TableRow className="bg-gray-200">
@@ -527,11 +518,15 @@ export default function Home() {
                 <TabsContent value="chart">
                   {graphData && (
                     <div className="flex justify-center items-center">
+                      <BsSave2 
+                        className='border rounded border-gray-500 absolute top-2 right-2 cursor-pointer'
+                        onClick={handleSaveGraph}
+                      />
                       <Image
                         src={graphData}
                         alt={t('generatedGraph')}
-                        width={800}
-                        height={600}
+                        width={600}
+                        height={400}
                         priority
                       />
                     </div>
@@ -540,6 +535,44 @@ export default function Home() {
               </Tabs>
             </>
           )}
+
+              <div
+                className={`w-full text-center flex flex-col items-center transition-opacity duration-700 ease-in-out ${
+                  fadeIn ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+              <div className='w-full flex items-center justify-center gap-5'>
+                <Textarea
+                  placeholder={t('textareaPlaceholder')}
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
+                  onKeyDown={handleKeyPress}
+                />
+                {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+              </div>
+
+              <div className="flex items-center justify-center m-4 gap-4">
+
+                <Button variant="destructive" onClick={handleClearTable}>
+                  <IoMdRefresh/>
+                  {t('clear')}
+                </Button>
+
+                <Select onValueChange={(value) => setRowsPerPage(value === 'all' ? 'all' : parseInt(value))}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={t('rowsPerPage')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
           {isFullScreen && tableData && (
             <FullScreenTableModal
@@ -560,6 +593,7 @@ export default function Home() {
               graphData={graphData}
               currentTab={currentTab}
               setCurrentTab={setCurrentTab}
+              handleKeyPress={handleKeyPress}
             />
           )}
 
