@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react'
 import { db } from '@/firebase/db' // Remove Firebase auth import
 import { Project } from '@/firebase/db'
-import { collection, query, where, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, deleteDoc, doc, QuerySnapshot } from 'firebase/firestore'
 import { Button } from '@/components/ui/button'
 import { FaTrash, FaEdit } from 'react-icons/fa'
 import EditProjectModal from './edit-project-modal'
-import { useUser } from '@clerk/nextjs' // Add Clerk user hook
+import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
 const ProjectsList = () => {
@@ -28,7 +28,7 @@ const ProjectsList = () => {
         where('ownerId', '==', user.id)
       )
       
-      unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+      unsubscribeSnapshot = onSnapshot(q, (snapshot: QuerySnapshot) => {
         const projectsData: Project[] = []
         snapshot.forEach((doc) => {
           projectsData.push({ id: doc.id, ...doc.data() } as Project)
@@ -42,7 +42,7 @@ const ProjectsList = () => {
     return () => {
       if (unsubscribeSnapshot) unsubscribeSnapshot()
     }
-  }, [user?.id])
+  }, [user, user?.id])
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this project?')) {

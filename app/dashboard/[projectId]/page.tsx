@@ -30,7 +30,14 @@ import { useTranslation } from 'react-i18next'
 import { TiUpload } from 'react-icons/ti'
 import { Input } from '@/components/ui/input'
 
-export default function ProjectPage({ params }: { params: { projectId: string } }) {
+interface IProjectPageProps {
+  params: {
+    projectId: string
+  }
+  
+}
+
+export default function ProjectPage({ params }: IProjectPageProps) {
   const { projectId } = params
   const { user } = useUser()
   const { toast } = useToast()
@@ -49,11 +56,6 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [userInput, setUserInput] = useState<string>("");
   const [originalTableData, setOriginalTableData] = useState<string[][] | null>(null);
-  const [fadeIn, setFadeIn] = useState<boolean>(false);
-
-  useEffect(() => {
-    console.log('TABLE DATA', tableData)
-  }, [tableData])
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -87,7 +89,7 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
     }
 
     if (projectId && user) fetchProject()
-  }, [projectId, user?.id]);
+  }, [error, toast, user, projectId, user?.id]);
 
   const totalPages = tableData && tableData.length > 0 
     ? rowsPerPage === 'all' 
@@ -180,7 +182,7 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
         }
   
         setCurrentPage(1);
-        setTimeout(() => setFadeIn(true), 100);
+        // setTimeout(() => setFadeIn(true), 100);
       } catch (error) {
         console.error('Full error details:', error);
         toast({
@@ -345,6 +347,7 @@ export default function ProjectPage({ params }: { params: { projectId: string } 
                 </div>
               )}
             </div>
+          </div>
           </div>
 
           {loading ? (

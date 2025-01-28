@@ -54,17 +54,7 @@ export default function Home() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [graphData, setGraphData] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'table' | 'chart'>("table");
-  const [projects, setProjects] = useState<Project[]>([]);
-
-  let parsedGraphData: { name: string; value: number }[] | null = null;
-
-  if (graphData) {
-    try {
-      parsedGraphData = JSON.parse(graphData);
-    } catch (error) {
-      console.error("Error parsing graph data:", error);
-    }
-  }
+  const [projects] = useState<Project[]>([]);
 
   const totalPages =
     tableData && tableData.length > 0

@@ -15,8 +15,8 @@ const AddProjectModal = ({
   onClose: () => void
 }) => {
   const [name, setName] = useState('');
-  const [table, setTable] = useState('');
-  const [chart, setChart] = useState('');
+  const [table] = useState('');
+  const [chart] = useState('');
   const [loading, setLoading] = useState(false)
   const { user } = useUser();
 
