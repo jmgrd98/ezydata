@@ -26,6 +26,7 @@ const resources = {
       expandTable: "Expand Table",
       table: "Tabela",
       chart: "Charts",
+      saveProject: "Save project",
 
       toast: {
         noPromptTitle: "Please write a prompt.",
@@ -84,6 +85,7 @@ const resources = {
       expandTable: "Expandir Tabela",
       table: "Tabela",
       chart: "Gráficos",
+      saveProject: "Salvar projeto",
 
       toast: {
         noPromptTitle: "Por favor, escreva uma instrução.",
