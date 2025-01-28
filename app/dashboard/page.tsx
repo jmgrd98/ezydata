@@ -35,7 +35,7 @@ import { FaRegSave } from "react-icons/fa";
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db, Project } from '@/firebase/db';
 import { useUser } from '@clerk/nextjs';
-import { BsSave2, BsStars } from "react-icons/bs";
+import { BsSave2 } from "react-icons/bs";
 import { IoMdRefresh } from "react-icons/io";
 import { useRouter } from 'next/navigation';
 import { IoSend } from "react-icons/io5";
@@ -73,7 +73,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!user) router.push('/')
-  }, []);
+  }, [router, user]);
 
   useEffect(() => {
     detectLanguage();

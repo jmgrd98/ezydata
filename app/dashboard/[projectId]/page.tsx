@@ -23,7 +23,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Textarea } from '@/components/ui/textarea'
-import { BsStars } from 'react-icons/bs'
 import { IoMdRefresh } from 'react-icons/io'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useTranslation } from 'react-i18next'

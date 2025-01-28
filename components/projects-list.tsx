@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { db } from '@/firebase/db' // Remove Firebase auth import
 import { Project } from '@/firebase/db'
 import { collection, query, where, onSnapshot, deleteDoc, doc, QuerySnapshot } from 'firebase/firestore'
-import { Button } from '@/components/ui/button'
 import { FaTrash, FaEdit } from 'react-icons/fa'
 import EditProjectModal from './edit-project-modal'
 import { useUser } from '@clerk/nextjs'
