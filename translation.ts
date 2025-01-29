@@ -27,6 +27,7 @@ const resources = {
       table: "Tabela",
       chart: "Charts",
       saveProject: "Save project",
+      downloadChart: "Download chart",
 
       toast: {
         noPromptTitle: "Please write a prompt.",
@@ -55,6 +56,14 @@ const resources = {
         landingVideo: {
           title: "See how it works",
         },
+      },
+
+      deleteModal: {
+        title: "Delete Project",
+        description:
+          'Are you sure you want to delete the project "{{name}}"? This action cannot be undone.',
+        cancelButton: "Cancel",
+        confirmButton: "Delete",
       },
 
       error: {
@@ -90,6 +99,7 @@ const resources = {
       table: "Tabela",
       chart: "Gráficos",
       saveProject: "Salvar projeto",
+      downloadChart: "Baixar gráfico",
 
       toast: {
         noPromptTitle: "Por favor, escreva uma instrução.",
@@ -117,6 +127,14 @@ const resources = {
         landingVideo: {
           title: "Veja como funciona",
         },
+      },
+
+      deleteModal: {
+        title: "Excluir Projeto",
+        description:
+          'Tem certeza que deseja excluir o projeto "{{name}}"? Esta ação não pode ser desfeita.',
+        cancelButton: "Cancelar",
+        confirmButton: "Excluir",
       },
 
       error: {
