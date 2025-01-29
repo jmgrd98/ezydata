@@ -42,7 +42,7 @@ const LandingHero = () => {
 
       <div>
         <Link href={isSignedIn ? '/dashboard' : '/sign-up'}>
-          <Button variant={'secondary'}  size={'xl'} className='md:text-lg p-4 py-8 md:p-6 rounded-full font-semibold'>
+          <Button variant={'premium'}  size={'xl'} className='md:text-lg p-4 py-8 md:p-6 rounded-full font-semibold'>
             {t('landing.landingHero.generateButton')}
           </Button>
         </Link>
