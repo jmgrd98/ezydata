@@ -1,4 +1,3 @@
-// components/edit-project-modal.tsx
 'use client'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
@@ -56,24 +55,6 @@ const EditProjectModal = ({ project, onClose }: EditProjectModalProps) => {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="table">Table Configuration</Label>
-              <Input
-                id="table"
-                value={table}
-                onChange={(e) => setTable(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="chart">Chart Configuration</Label>
-              <Input
-                id="chart"
-                value={charts}
-                onChange={(e) => setCharts([e.target.value])}
                 required
               />
             </div>

@@ -324,6 +324,60 @@ export default function Home() {
     }
   };
 
+  // const handleDownloadGraph = () => {
+  //   if (!graphData) {
+  //     toast({
+  //       title: t('error.noGraphTitle'),
+  //       description: t('error.noGraphDesc'),
+  //       variant: 'destructive',
+  //     });
+  //     return;
+  //   }
+  
+  //   try {
+  //     // Extract base64 data from the data URL
+  //     const base64Data = graphData.split(',')[1];
+  //     const byteCharacters = atob(base64Data);
+  //     const byteArrays = [];
+      
+  //     for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+  //       const slice = byteCharacters.slice(offset, offset + 512);
+  //       const byteNumbers = new Array(slice.length);
+        
+  //       for (let i = 0; i < slice.length; i++) {
+  //         byteNumbers[i] = slice.charCodeAt(i);
+  //       }
+        
+  //       const byteArray = new Uint8Array(byteNumbers);
+  //       byteArrays.push(byteArray);
+  //     }
+  
+  //     // Create blob and download
+  //     const blob = new Blob(byteArrays, { type: 'image/png' });
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement('a');
+  //     a.href = url;
+  //     a.download = `${projectName || 'chart'}_${new Date().toISOString().slice(0,10)}.png`;
+  //     document.body.appendChild(a);
+  //     a.click();
+      
+  //     // Cleanup
+  //     window.URL.revokeObjectURL(url);
+  //     document.body.removeChild(a);
+  
+  //     toast({
+  //       title: t('toast.graphSavedTitle'),
+  //       description: t('toast.graphSavedDesc'),
+  //     });
+  //   } catch (error) {
+  //     toast({
+  //       title: t('error.saveFailedTitle'),
+  //       description: error instanceof Error ? error.message : t('error.unexpected'),
+  //       variant: 'destructive',
+  //     });
+  //   }
+  // };
+
   return (
     <I18nextProvider i18n={i18n}>
       <div className="w-full flex flex-col items-center justify-center p-4 h-full">
