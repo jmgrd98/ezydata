@@ -20,8 +20,6 @@ export async function GET() {
     const countryCode = headersList.get("x-vercel-ip-country") || "US";
     const isBrazil = countryCode === "BR";
 
-    console.log("IS BRAZIL", isBrazil);
-
     const currency = isBrazil ? "BRL" : "USD";
     const unitAmount = isBrazil ? 5000 : 1000;
     const description = isBrazil

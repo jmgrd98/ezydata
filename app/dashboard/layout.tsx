@@ -9,6 +9,7 @@ import AddProjectModal from '@/components/add-project-modal'
 import ProjectsList from '@/components/projects-list'
 import { ProjectsProvider } from '@/contexts/ProjectsContext'
 import ProjectProgress from '@/components/project-progress'
+import { AiModelProvider } from '@/contexts/AiModelsContext'
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,6 +17,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ProjectsProvider>
+      <AiModelProvider>
       <div className="w-screen h-full relative">
         <Sheet open={isOpen} onOpenChange={setIsOpen} modal={false}>
           <div className="h-screen flex flex-col">
@@ -59,6 +61,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           onClose={() => setShowAddModal(false)}
         />
       </div>
+      </AiModelProvider>
     </ProjectsProvider>
   )
 }

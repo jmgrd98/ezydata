@@ -41,12 +41,14 @@ import { useRouter } from 'next/navigation';
 import { IoSend } from "react-icons/io5";
 import { useProjects } from '@/contexts/ProjectsContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAiModel } from '@/contexts/AiModelsContext';
 
 export default function Home() {
   const { toast } = useToast();
   const { t } = useTranslation();
   const { user } = useUser();
   const router = useRouter();
+  const { aiModel } = useAiModel();
 
   const [tableData, setTableData] = useState<string[][] | null>(null);
   const [originalTableData, setOriginalTableData] = useState<string[][] | null>(null);
@@ -107,7 +109,6 @@ export default function Home() {
     try {
       setLoading(true);
       const text = await file.text();
-      console.log('Raw file content:', text);
 
       if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
         const rows = text.split('\n').map((row) => row.split(','));
@@ -116,7 +117,6 @@ export default function Home() {
       }
       else if (file.type === 'application/json' || file.name.endsWith('.json')) {
         const trimmedText = text.trim();
-        console.log('Trimmed JSON content:', trimmedText);
 
         if (!/^[\{\[]/.test(trimmedText)) {
           throw new Error(t('error.jsonInvalidStructure') + ' - ' + trimmedText.slice(0, 50) + '...');
@@ -124,7 +124,6 @@ export default function Home() {
 
         try {
           const jsonData = JSON.parse(trimmedText);
-          console.log('Parsed JSON:', jsonData);
           
           if (!Array.isArray(jsonData)) {
             throw new Error(t('error.jsonNotArray') + ` - Type received: ${typeof jsonData}`);
@@ -227,10 +226,15 @@ export default function Home() {
         ? `${process.env.NEXT_PUBLIC_API_ROOT_URL}/generate-chart/`
         : `${process.env.NEXT_PUBLIC_API_ROOT_URL}/process-command/`;
   
+      console.log(aiModel)
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ csv_data: csvData, instruction: userInput }),
+        body: JSON.stringify({ 
+          csv_data: csvData,
+          instruction: userInput,
+          model: aiModel
+        }),
       });
   
       if (!response.ok) {
@@ -239,8 +243,6 @@ export default function Home() {
       }
   
       const result = await response.json();
-
-      console.log('RESULT', result)
   
       if (result.type === "table") {
         setCurrentTab('table');
