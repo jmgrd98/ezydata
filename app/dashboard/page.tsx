@@ -331,20 +331,20 @@ export default function Home() {
         <main className="w-full flex flex-col items-center justify-evenly mx-auto h-full max-h-full">
 
         {tableData && (
-              <div className='w-full flex align-items justify-between mb-5'>
-                <Button size="sm" onClick={triggerFileUpload}>
-                  <TiUpload width={40} height={40} />
-                  {t('upload')}
-                </Button>
+          <div className='w-full flex align-items justify-between mb-5'>
+            <Button size="sm" onClick={triggerFileUpload}>
+              <TiUpload width={40} height={40} />
+              {t('upload')}
+            </Button>
 
-                <form onSubmit={saveProject}>
-                  <Button type="submit" size="sm">
-                    <FaRegSave />
-                    {t('saveProject')}
-                  </Button>
-                </form>
-              </div>
-            )}
+            <form onSubmit={saveProject}>
+              <Button type="submit" size="sm">
+                <FaRegSave />
+                {t('saveProject')}
+              </Button>
+            </form>
+          </div>
+        )}
 
           <div className='flex flex-col items-center'>
             <Input

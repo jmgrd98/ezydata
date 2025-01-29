@@ -57,6 +57,14 @@ const resources = {
         },
       },
 
+      deleteModal: {
+        title: "Delete Project",
+        description:
+          'Are you sure you want to delete the project "{{name}}"? This action cannot be undone.',
+        cancelButton: "Cancel",
+        confirmButton: "Delete",
+      },
+
       error: {
         jsonNotArray: "JSON data must be an array of objects",
         jsonEmpty: "JSON array is empty",
@@ -117,6 +125,14 @@ const resources = {
         landingVideo: {
           title: "Veja como funciona",
         },
+      },
+
+      deleteModal: {
+        title: "Excluir Projeto",
+        description:
+          'Tem certeza que deseja excluir o projeto "{{name}}"? Esta ação não pode ser desfeita.',
+        cancelButton: "Cancelar",
+        confirmButton: "Excluir",
       },
 
       error: {
