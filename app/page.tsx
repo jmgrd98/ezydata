@@ -32,7 +32,6 @@ const LandingPage = () => {
       const languageMap: Record<string, string> = {
         US: "en",
         BR: "pt",
-        // Add more mappings as needed
       };
   
       const language = languageMap[countryCode] || "en";

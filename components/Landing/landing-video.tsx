@@ -1,8 +1,12 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next';
 import i18n from "@/translation";
+import { Button } from '../ui/button';
+import Link from 'next/link';
+import { useAuth } from '@clerk/clerk-react';
 
 const LandingVideo = () => {
+  const { isSignedIn } = useAuth();
   const { t } = useTranslation();
   const [country, setCountry] = React.useState<string>('');
   useEffect(() => {
@@ -27,7 +31,7 @@ const LandingVideo = () => {
     }
   };
   return (
-    <div className='w-full h-full bg-black text-white montserrat text-center flex flex-col items-center'>
+    <div className='p-5 w-full h-full bg-black text-white montserrat text-center flex flex-col items-center'>
       <p className='text-4xl'>
         {t('landing.landingVideo.title')}
       </p>
@@ -39,7 +43,7 @@ const LandingVideo = () => {
         muted 
         controls
         playsInline
-        className='m-20'
+        className='m-10'
       /> : <video 
         src="/assets/video-portugues.mp4"
         width={'70%'} 
@@ -48,8 +52,14 @@ const LandingVideo = () => {
         muted 
         controls
         playsInline
-        className='m-20'
+        className='m-10'
       />}
+
+      <Link href={isSignedIn ? '/dashboard' : '/sign-up'}>
+        <Button variant={'secondary'} size={'xl'} className='md:text-lg p-4 py-8 md:p-6 rounded-full font-semibold'>
+          {t('landing.landingHero.generateButton')}
+        </Button>
+      </Link>
     </div>
   )
 }

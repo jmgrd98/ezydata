@@ -15,7 +15,7 @@ const LandingHero = () => {
   }
 
   return (
-    <div className='inter flex flex-col gap-5 text-white font-bold py-10 pb-40 text-center space-y-5'>
+    <div className='inter flex flex-col gap-5 text-white font-bold py-10 pb-40 text-center space-y-5 my-5 mt-20'>
       <div className='text-4xl sm:text-5xl md:text-6xl lg:text-7xl space-y-5 font-extrabold'>
         <h1>{t('landing.landingHero.title')}</h1>
         <div className='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600'>
@@ -42,7 +42,7 @@ const LandingHero = () => {
 
       <div>
         <Link href={isSignedIn ? '/dashboard' : '/sign-up'}>
-          <Button size={'xl'} className='md:text-lg p-4 py-8 md:p-6 rounded-full font-semibold'>
+          <Button variant={'secondary'}  size={'xl'} className='md:text-lg p-4 py-8 md:p-6 rounded-full font-semibold'>
             {t('landing.landingHero.generateButton')}
           </Button>
         </Link>

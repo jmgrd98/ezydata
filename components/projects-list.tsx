@@ -1,22 +1,25 @@
 // components/projects-list.tsx
 'use client'
 import { useEffect, useState } from 'react'
-import { db } from '@/firebase/db' // Remove Firebase auth import
+import { db } from '@/firebase/db'
 import { Project } from '@/firebase/db'
 import { collection, query, where, onSnapshot, deleteDoc, doc, QuerySnapshot } from 'firebase/firestore'
 import { FaTrash, FaEdit } from 'react-icons/fa'
 import EditProjectModal from './edit-project-modal'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import { useProjects } from '@/contexts/ProjectsContext'
+import DeleteConfirmationModal from './delete-confirmation-modal'
 
 const ProjectsList = () => {
   const { user } = useUser();
   const router = useRouter();
+  const { projects, setProjects } = useProjects();
 
-
-  const [projects, setProjects] = useState<Project[]>([])
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   useEffect(() => {
     let unsubscribeSnapshot: () => void
@@ -41,13 +44,15 @@ const ProjectsList = () => {
     return () => {
       if (unsubscribeSnapshot) unsubscribeSnapshot()
     }
-  }, [user, user?.id])
+  }, [user, user?.id, setProjects])
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this project?')) {
-      await deleteDoc(doc(db, 'projects', id))
+  const handleConfirmDelete = async () => {
+    if (projectToDelete?.id) {
+      await deleteDoc(doc(db, 'projects', projectToDelete.id))
+      setProjectToDelete(null)
+      setIsDeleteModalOpen(false)
     }
-  };
+  }
 
   const handleProjectClick = (projectId: string) => {
     router.push(`/dashboard/${projectId}`)
@@ -68,10 +73,16 @@ const ProjectsList = () => {
                 setSelectedProject(project);
                 setIsEditModalOpen(true);
               }}/>
-              <FaTrash className='cursor-pointer' size={20} color='red' onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(project.id!);
-              }} />
+             <FaTrash 
+                className='cursor-pointer' 
+                size={20} 
+                color='red' 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setProjectToDelete(project)
+                  setIsDeleteModalOpen(true)
+                }} 
+              />
           </div>
         </div>
       ))}
@@ -83,6 +94,17 @@ const ProjectsList = () => {
             setIsEditModalOpen(false);
           }}
           isOpen={isEditModalOpen}
+        />
+      )}
+
+      {isDeleteModalOpen && (
+        <DeleteConfirmationModal
+          onClose={() => {
+            setProjectToDelete(null)
+            setIsDeleteModalOpen(false)
+          }}
+          onConfirm={handleConfirmDelete}
+          project={projectToDelete}
         />
       )}
     </div>
