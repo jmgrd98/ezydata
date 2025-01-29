@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { db, Project } from '@/firebase/db'
-import { addDoc, collection, doc, getDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
@@ -301,42 +301,54 @@ export default function ProjectPage({ params }: IProjectPageProps) {
   const toggleFullScreen = () => setIsFullScreen(!isFullScreen);
 
   const saveProject = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!user) return;
+    e.preventDefault();
+    if (!user) return;
   
-      if (projects.length >= 5) {
-        toast({
-          title: 'Project limit reached',
-          description: 'Upgrade to Pro to create more projects',
-          duration: 5000,
-        });
-        return;
-      }
+    if (projects.length >= 5) {
+      toast({
+        title: 'Project limit reached',
+        description: 'Upgrade to Pro to create more projects',
+        duration: 5000,
+      });
+      return;
+    }
   
-      setLoading(true);
-      try {
-        await addDoc(collection(db, 'projects'), {
+    setLoading(true);
+    console.log('CURRENT PROJECT', currentProject)
+    try {
+      if (currentProject.id) {
+        const projectRef = doc(db, 'projects', currentProject.id);
+        await updateDoc(projectRef, {
           name: `Projeto ${projects.length + 1}`,
           table: JSON.stringify(tableData),
-          chart: graphData,                  
+          chart: graphData,
           ownerId: user.id,
-          createdAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
         });
-        toast({
-          title: 'Project saved successfully',
-          duration: 3000,
+      } else {
+        const projectRef = doc(collection(db, 'projects'));
+        await setDoc(projectRef, {
+          table: JSON.stringify(tableData),
+          chart: graphData,
+          ownerId: user.id,
+          createdAt: serverTimestamp(),
         });
-      } catch (error) {
-        console.error('Error adding project:', error);
-        toast({
-          title: 'Error saving project',
-          description: error instanceof Error ? error.message : 'Unknown error',
-          duration: 5000,
-        });
-      } finally {
-        setLoading(false);
       }
-    };
+      toast({
+        title: 'Project saved successfully',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error saving project:', error);
+      toast({
+        title: 'Error saving project',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
     const handleDownloadGraph = () => {
       if (!graphData) {

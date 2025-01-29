@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from './ui/label'
 import { db } from '@/firebase/db'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, serverTimestamp, setDoc, doc } from 'firebase/firestore'
 import { useUser } from '@clerk/nextjs'
 import { useProjects } from '@/contexts/ProjectsContext'
 import { toast } from '@/hooks/use-toast'
@@ -38,21 +38,25 @@ const AddProjectModal = ({
 
     setLoading(true)
     try {
-      await addDoc(collection(db, 'projects'), {
+      const projectRef = doc(collection(db, 'projects'));
+      const projectId = projectRef.id;
+
+      await setDoc(projectRef, {
+        id: projectId,
         name,
         table,
         chart,
         ownerId: user.id,
-        createdAt: serverTimestamp()
-      })
+        createdAt: serverTimestamp(),
+      });
 
-      onClose()
-    } catch (error) {
-      console.error('Error adding project:', error)
-    } finally {
-      setLoading(false)
+        onClose()
+      } catch (error) {
+        console.error('Error adding project:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
   return (
     <div className={`fixed inset-0 bg-black/50 ${isOpen ? 'block' : 'hidden'}`}>

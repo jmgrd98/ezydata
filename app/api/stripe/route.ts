@@ -24,6 +24,9 @@ export async function GET() {
 
     const currency = isBrazil ? "BRL" : "USD";
     const unitAmount = isBrazil ? 5000 : 1000;
+    const description = isBrazil
+      ? "Plataforma de IA low code para análise de dados"
+      : "AI-powered low code platform for data analysts.";
 
     const stripeSession = await stripe.checkout.sessions.create({
       success_url: successUrl,
@@ -38,7 +41,7 @@ export async function GET() {
             currency: currency,
             product_data: {
               name: "Ezydata",
-              description: "AI-powered low code platform for data analysts.",
+              description,
             },
             unit_amount: unitAmount,
             recurring: {
