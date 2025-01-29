@@ -2,6 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { absoluteUrl } from "@/lib/utils";
+import { headers } from "next/headers";
 
 const cancelUrl = absoluteUrl("/dashboard");
 const successUrl = absoluteUrl("/dashboard");
@@ -10,10 +11,19 @@ export async function GET() {
   try {
     const { userId } = await auth();
     const user = await currentUser();
+    const headersList = headers();
 
     if (!userId || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+
+    const countryCode = headersList.get("x-vercel-ip-country") || "US";
+    const isBrazil = countryCode === "BR";
+
+    console.log("IS BRAZIL", isBrazil);
+
+    const currency = isBrazil ? "BRL" : "USD";
+    const unitAmount = isBrazil ? 5000 : 1000;
 
     const stripeSession = await stripe.checkout.sessions.create({
       success_url: successUrl,
@@ -25,12 +35,12 @@ export async function GET() {
       line_items: [
         {
           price_data: {
-            currency: "USD",
+            currency: currency,
             product_data: {
               name: "Ezydata",
               description: "AI-powered low code platform for data analysts.",
             },
-            unit_amount: 1000,
+            unit_amount: unitAmount,
             recurring: {
               interval: "month",
             },

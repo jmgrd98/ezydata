@@ -29,7 +29,7 @@ const ProjectProgress = () => {
       <p>{projects.length} de 5 projetos gratuitos criados</p>
       <Progress value={(projects.length / 5) * 100} className='bg-gray-300' />
 
-      <Button onClick={onSubscribe} className='w-full' >
+      <Button variant={'premium'} onClick={onSubscribe} className='w-full' >
           Upgrade
         <Zap className='w-4 h-4 ml-2 fill-white' />
       </Button>
