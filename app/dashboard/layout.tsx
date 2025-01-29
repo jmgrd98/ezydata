@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import Navbar from "@/components/navbar/navbar"
 import { Button } from '@/components/ui/button'
@@ -7,17 +7,12 @@ import { Menu } from 'lucide-react'
 import { FaPlus } from "react-icons/fa6";
 import AddProjectModal from '@/components/add-project-modal'
 import ProjectsList from '@/components/projects-list'
-import { ProjectsProvider, useProjects } from '@/contexts/ProjectsContext'
+import { ProjectsProvider } from '@/contexts/ProjectsContext'
 import ProjectProgress from '@/components/project-progress'
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
-  const { projects } = useProjects();
-
-  useEffect(() => {
-    console.log(projects)
-  }, [projects]);
 
   return (
     <ProjectsProvider>

@@ -289,6 +289,16 @@ export default function Home() {
   const saveProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
+
+    if (projects.length >= 5) {
+      toast({
+        title: 'Project limit reached',
+        description: 'Upgrade to Pro to create more projects',
+        duration: 5000,
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       await addDoc(collection(db, 'projects'), {
