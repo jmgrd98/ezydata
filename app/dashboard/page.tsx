@@ -62,6 +62,7 @@ export default function Home() {
   const [graphData, setGraphData] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'table' | 'chart'>("table");
   const { projects } = useProjects();
+  const [data, setData] = useState();
 
   const totalPages =
     tableData && tableData.length > 0
@@ -75,9 +76,42 @@ export default function Home() {
       ? tableData?.slice(1)
       : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
 
+      const GITHUB_API_URL = "https://api.github.com/repos/jmgrd98/httpro/contents";
+
   useEffect(() => {
     if (!user) router.push('/')
   }, [router, user]);
+
+  useEffect(() => {
+    console.log(process.env.NEXT_PUBLIC_GITHUB_TOKEN)
+    const fetchRepos = async () => {
+      try {
+        const response = await fetch(`${GITHUB_API_URL}/package.json`, {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3+json",
+          },
+        });
+
+        console.log('RESPONSE', response)
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const jsonData = await response.json();
+        setData(jsonData);
+      } catch (error) {
+        console.error("Failed to fetch repos:", error);
+      }
+    };
+
+    fetchRepos();
+  }, []);
+
+  useEffect(() => {
+    console.log(data);
+  }, [data])
 
   useEffect(() => {
     detectLanguage();
