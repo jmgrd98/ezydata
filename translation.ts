@@ -51,6 +51,10 @@ const resources = {
           generateButton: "Start now",
           noCreditCard: "No credit card required.",
         },
+
+        landingVideo: {
+          title: "See how it works",
+        },
       },
 
       error: {
@@ -109,6 +113,9 @@ const resources = {
             "Visualize seu conjunto de dados e gere comandos pandas para manipular.",
           generateButton: "Comece agora",
           noCreditCard: "Totalmente gratuito.",
+        },
+        landingVideo: {
+          title: "Veja como funciona",
         },
       },
 

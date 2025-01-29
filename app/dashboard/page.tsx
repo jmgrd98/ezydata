@@ -33,12 +33,13 @@ import Image from 'next/image';
 import { TiUpload } from "react-icons/ti";
 import { FaRegSave } from "react-icons/fa";
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db, Project } from '@/firebase/db';
+import { db, } from '@/firebase/db';
 import { useUser } from '@clerk/nextjs';
 import { BsSave2 } from "react-icons/bs";
 import { IoMdRefresh } from "react-icons/io";
 import { useRouter } from 'next/navigation';
 import { IoSend } from "react-icons/io5";
+import { useProjects } from '@/contexts/ProjectsContext';
 
 export default function Home() {
   const { toast } = useToast();
@@ -57,7 +58,7 @@ export default function Home() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [graphData, setGraphData] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'table' | 'chart'>("table");
-  const [projects] = useState<Project[]>([]);
+  const { projects } = useProjects();
 
   const totalPages =
     tableData && tableData.length > 0
@@ -288,7 +289,6 @@ export default function Home() {
   const saveProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
-    console.log('TABLE', tableData)
     setLoading(true);
     try {
       await addDoc(collection(db, 'projects'), {
@@ -312,7 +312,8 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }
+  };
+
   return (
     <I18nextProvider i18n={i18n}>
       <div className="w-full flex flex-col items-center justify-center p-4 h-full">
