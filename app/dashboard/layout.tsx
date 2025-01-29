@@ -16,7 +16,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ProjectsProvider>
-      <div className="h-full relative">
+      <div className="w-screen h-full relative">
         <Sheet open={isOpen} onOpenChange={setIsOpen} modal={false}>
           <div className="h-screen flex flex-col">
             <Navbar>
@@ -48,7 +48,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <ProjectProgress />
             </SheetContent>
 
-            <main className="w-full flex-1 overflow-auto p-4">
+            <main className="w-screen flex-1 overflow-auto p-4">
               {children}
             </main>
           </div>

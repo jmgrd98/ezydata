@@ -34,6 +34,7 @@ const resources = {
         noPromptDesc: "Please write a prompt.",
         noDatasetTitle: "Please upload a CSV file.",
         noDatasetDesc: "Please upload a CSV file.",
+        graphSavedTitle: "Chart downloaded successfully.",
       },
 
       landing: {
@@ -106,6 +107,7 @@ const resources = {
         noPromptDesc: "Por favor, escreva uma instrução.",
         noDatasetTitle: "Por favor, envie um arquivo CSV.",
         noDatasetDesc: "Por favor, envie um arquivo CSV.",
+        graphSavedTitle: "Gráfico baixado com sucesso.",
       },
 
       landing: {

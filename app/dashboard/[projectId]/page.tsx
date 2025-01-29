@@ -378,7 +378,6 @@ export default function ProjectPage({ params }: IProjectPageProps) {
     
         toast({
           title: t('toast.graphSavedTitle'),
-          description: t('toast.graphSavedDesc'),
         });
       } catch (error) {
         toast({
@@ -390,12 +389,13 @@ export default function ProjectPage({ params }: IProjectPageProps) {
     };
 
   return (
-    <div className="flex max-w-full flex-col items-center justify-center p-4 h-full">
+    <div className="flex  flex-col items-center justify-center p-4 h-full">
       <Toaster />
-      <main className="flex flex-col items-center justify-evenly w-full max-w-3xl mx-auto h-full max-h-full">
+      <main className="flex flex-col items-center justify-evenly w-full mx-auto h-full max-h-full">
+      {tableData && (
+        <>
         <p className='text-2xl font-bold'>{currentProject.name}</p>
 
-        {tableData && (
           <div className='w-full flex align-items justify-between mb-5'>
             <Button size="sm" onClick={triggerFileUpload}>
               <TiUpload width={40} height={40} />
@@ -409,25 +409,17 @@ export default function ProjectPage({ params }: IProjectPageProps) {
               </Button>
             </form>
           </div>
+        </>
         )}
 
         <div
           className={`mx-5 text-center flex flex-col items-center transition-opacity duration-700 ease-in-out`}
         >
           <div className='flex flex-col items-center'>
-            <Input
-              type="file"
-              accept=".csv,.json"
-              onChange={handleFileUpload}
-              ref={fileInputRef}
-              className="hidden"
-            />
-            {!tableData && <Button size="xl" onClick={triggerFileUpload}>
-              <TiUpload width={40} height={40} />
-              {t('upload')}
-            </Button>}
 
-            <div className="flex flex-col items-center">
+          {!tableData && (
+            <div className="flex flex-col items-center gap-10">
+              <p className='text-2xl font-bold'>{currentProject.name}</p>
               <Input
                 type="file"
                 accept=".csv,.json"
@@ -435,13 +427,12 @@ export default function ProjectPage({ params }: IProjectPageProps) {
                 ref={fileInputRef}
                 className="hidden"
               />
-              {!tableData && (
                 <Button size="xl" onClick={triggerFileUpload}>
                   <TiUpload width={40} height={40} />
                   {t('upload')}
                 </Button>
-              )}
             </div>
+            )}
           </div>
           </div>
 
@@ -642,13 +633,13 @@ export default function ProjectPage({ params }: IProjectPageProps) {
           )}
 
               {tableData && (
-                <div className="text-center flex flex-col items-center">
+                <div className="w-full text-center flex flex-col items-center">
                   <div className='w-full flex items-center justify-center gap-5'>
                     <Textarea
                       placeholder={t('textareaPlaceholder')}
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
-                      className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
+                      className="mt-4 border border-gray-300 rounded p-2 w-full"
                       onKeyDown={handleKeyPress}
                     />
                     {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}

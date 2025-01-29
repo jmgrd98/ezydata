@@ -6,6 +6,8 @@ import { Label } from './ui/label'
 import { db } from '@/firebase/db'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { useUser } from '@clerk/nextjs'
+import { useProjects } from '@/contexts/ProjectsContext'
+import { toast } from '@/hooks/use-toast'
 
 const AddProjectModal = ({
   isOpen,
@@ -14,15 +16,25 @@ const AddProjectModal = ({
   isOpen: boolean
   onClose: () => void
 }) => {
+  const { projects } = useProjects();
+  const { user } = useUser();
   const [name, setName] = useState('');
   const [table] = useState('');
   const [chart] = useState('');
   const [loading, setLoading] = useState(false)
-  const { user } = useUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!user) return
+    e.preventDefault();
+    if (!user) return;
+
+    if (projects.length >= 5) {
+      toast({
+        title: 'Project limit reached',
+        description: 'Upgrade to Pro to create more projects',
+        duration: 5000,
+      });
+      return;
+    }
 
     setLoading(true)
     try {
