@@ -282,14 +282,14 @@ export default function Home() {
     e.preventDefault();
     if (!user) return;
 
-    if (projects.length >= 5) {
-      toast({
-        title: 'Project limit reached',
-        description: 'Upgrade to Pro to create more projects',
-        duration: 5000,
-      });
-      return;
-    }
+    // if (projects.length >= 5) {
+    //   toast({
+    //     title: 'Project limit reached',
+    //     description: 'Upgrade to Pro to create more projects',
+    //     duration: 5000,
+    //   });
+    //   return;
+    // }
 
     setLoading(true);
     try {
@@ -356,7 +356,6 @@ export default function Home() {
   
       toast({
         title: t('toast.graphSavedTitle'),
-        description: t('toast.graphSavedDesc'),
       });
     } catch (error) {
       toast({
