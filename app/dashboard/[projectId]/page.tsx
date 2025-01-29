@@ -134,7 +134,6 @@ export default function ProjectPage({ params }: IProjectPageProps) {
       try {
         setLoading(true);
         const text = await file.text();
-        console.log('Raw file content:', text);
   
         if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
           const rows = text.split('\n').map((row) => row.split(','));
@@ -143,7 +142,6 @@ export default function ProjectPage({ params }: IProjectPageProps) {
         }
         else if (file.type === 'application/json' || file.name.endsWith('.json')) {
           const trimmedText = text.trim();
-          console.log('Trimmed JSON content:', trimmedText);
   
           if (!/^[\{\[]/.test(trimmedText)) {
             throw new Error(t('error.jsonInvalidStructure') + ' - ' + trimmedText.slice(0, 50) + '...');
@@ -151,7 +149,6 @@ export default function ProjectPage({ params }: IProjectPageProps) {
   
           try {
             const jsonData = JSON.parse(trimmedText);
-            console.log('Parsed JSON:', jsonData);
             
             if (!Array.isArray(jsonData)) {
               throw new Error(t('error.jsonNotArray') + ` - Type received: ${typeof jsonData}`);
@@ -314,7 +311,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
     }
   
     setLoading(true);
-    console.log('CURRENT PROJECT', currentProject)
+
     try {
       if (currentProject.id) {
         const projectRef = doc(db, 'projects', currentProject.id);
