@@ -27,6 +27,7 @@ const resources = {
       table: "Tabela",
       chart: "Charts",
       saveProject: "Save project",
+      downloadChart: "Download chart",
 
       toast: {
         noPromptTitle: "Please write a prompt.",
@@ -98,6 +99,7 @@ const resources = {
       table: "Tabela",
       chart: "Gráficos",
       saveProject: "Salvar projeto",
+      downloadChart: "Baixar gráfico",
 
       toast: {
         noPromptTitle: "Por favor, escreva uma instrução.",

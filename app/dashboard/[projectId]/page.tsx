@@ -30,7 +30,12 @@ import { Input } from '@/components/ui/input'
 import { IoSend } from 'react-icons/io5'
 import { useProjects } from '@/contexts/ProjectsContext'
 import { BsSave2 } from 'react-icons/bs';
-// import { IoMdDownload } from "react-icons/io";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface IProjectPageProps {
   params: {
@@ -344,7 +349,6 @@ export default function ProjectPage({ params }: IProjectPageProps) {
       }
     
       try {
-        // Extract base64 data from the data URL
         const base64Data = graphData.split(',')[1];
         const byteCharacters = atob(base64Data);
         const byteArrays = [];
@@ -361,7 +365,6 @@ export default function ProjectPage({ params }: IProjectPageProps) {
           byteArrays.push(byteArray);
         }
     
-        // Create blob and download
         const blob = new Blob(byteArrays, { type: 'image/png' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -609,12 +612,21 @@ export default function ProjectPage({ params }: IProjectPageProps) {
                 <TabsContent value="chart">
                 {graphData && (
                     <div className="flex justify-center items-center relative">
-                      <BsSave2 
-                        className='absolute top-2 right-2 cursor-pointer p-1.5 bg-background rounded-md border hover:bg-accent transition-colors'
-                        size={28}
-                        onClick={handleDownloadGraph}
-                        title={t('downloadChart')}
-                      />
+                      <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                        <BsSave2 
+                          className='absolute top-2 right-2 cursor-pointer p-1.5 bg-background rounded-md border hover:bg-accent transition-colors'
+                          size={28}
+                          onClick={handleDownloadGraph}
+                          title={t('downloadChart')}
+                        />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center">
+                          <span>Download chart</span>
+                        </TooltipContent>
+                      </Tooltip>
+                      </TooltipProvider>
                       <Image
                         src={graphData}
                         alt={t('generatedGraph')}

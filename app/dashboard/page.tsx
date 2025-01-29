@@ -40,6 +40,7 @@ import { IoMdRefresh } from "react-icons/io";
 import { useRouter } from 'next/navigation';
 import { IoSend } from "react-icons/io5";
 import { useProjects } from '@/contexts/ProjectsContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function Home() {
   const { toast } = useToast();
@@ -277,15 +278,6 @@ export default function Home() {
     setTimeout(() => setFadeIn(true), 100);
   };
 
-  const handleSaveGraph = () => {
-    if (graphData) {
-      const link = document.createElement('a');
-      link.href = graphData;
-      link.download = 'graph.png';
-      link.click();
-    }
-  }
-
   const saveProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
@@ -324,59 +316,56 @@ export default function Home() {
     }
   };
 
-  // const handleDownloadGraph = () => {
-  //   if (!graphData) {
-  //     toast({
-  //       title: t('error.noGraphTitle'),
-  //       description: t('error.noGraphDesc'),
-  //       variant: 'destructive',
-  //     });
-  //     return;
-  //   }
+  const handleDownloadGraph = () => {
+    if (!graphData) {
+      toast({
+        title: t('error.noGraphTitle'),
+        description: t('error.noGraphDesc'),
+        variant: 'destructive',
+      });
+      return;
+    }
   
-  //   try {
-  //     // Extract base64 data from the data URL
-  //     const base64Data = graphData.split(',')[1];
-  //     const byteCharacters = atob(base64Data);
-  //     const byteArrays = [];
+    try {
+      const base64Data = graphData.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteArrays = [];
       
-  //     for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-  //       const slice = byteCharacters.slice(offset, offset + 512);
-  //       const byteNumbers = new Array(slice.length);
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
         
-  //       for (let i = 0; i < slice.length; i++) {
-  //         byteNumbers[i] = slice.charCodeAt(i);
-  //       }
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
         
-  //       const byteArray = new Uint8Array(byteNumbers);
-  //       byteArrays.push(byteArray);
-  //     }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
   
-  //     // Create blob and download
-  //     const blob = new Blob(byteArrays, { type: 'image/png' });
-  //     const url = window.URL.createObjectURL(blob);
-  //     const a = document.createElement('a');
-  //     a.href = url;
-  //     a.download = `${projectName || 'chart'}_${new Date().toISOString().slice(0,10)}.png`;
-  //     document.body.appendChild(a);
-  //     a.click();
+      const blob = new Blob(byteArrays, { type: 'image/png' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${'chart'}_${new Date().toISOString().slice(0,10)}.png`;
+      document.body.appendChild(a);
+      a.click();
       
-  //     // Cleanup
-  //     window.URL.revokeObjectURL(url);
-  //     document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
   
-  //     toast({
-  //       title: t('toast.graphSavedTitle'),
-  //       description: t('toast.graphSavedDesc'),
-  //     });
-  //   } catch (error) {
-  //     toast({
-  //       title: t('error.saveFailedTitle'),
-  //       description: error instanceof Error ? error.message : t('error.unexpected'),
-  //       variant: 'destructive',
-  //     });
-  //   }
-  // };
+      toast({
+        title: t('toast.graphSavedTitle'),
+        description: t('toast.graphSavedDesc'),
+      });
+    } catch (error) {
+      toast({
+        title: t('error.saveFailedTitle'),
+        description: error instanceof Error ? error.message : t('error.unexpected'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <I18nextProvider i18n={i18n}>
@@ -581,12 +570,23 @@ export default function Home() {
                 </TabsContent>
 
                 <TabsContent value="chart">
-                  {graphData && (
-                    <div className="flex justify-center items-center">
-                      <BsSave2 
-                        className='border rounded border-gray-500 absolute top-2 right-2 cursor-pointer'
-                        onClick={handleSaveGraph}
-                      />
+                {graphData && (
+                    <div className="flex justify-center items-center relative">
+                      <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                        <BsSave2 
+                          className='absolute top-2 right-2 cursor-pointer p-1.5 bg-background rounded-md border hover:bg-accent transition-colors'
+                          size={28}
+                          onClick={handleDownloadGraph}
+                          title={t('downloadChart')}
+                        />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center">
+                          <span>Download chart</span>
+                        </TooltipContent>
+                      </Tooltip>
+                      </TooltipProvider>
                       <Image
                         src={graphData}
                         alt={t('generatedGraph')}
