@@ -7,6 +7,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import LandingContent from "@/components/Landing/LandingContent";
+import LandingVideo from "@/components/Landing/landing-video";
 
 const LandingPage = () => {
 
@@ -46,6 +47,7 @@ const LandingPage = () => {
       <LandingNavbar />
       <LandingHero />
       <LandingContent />
+      <LandingVideo />
     </div>
   )
 }

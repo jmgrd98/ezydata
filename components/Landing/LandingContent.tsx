@@ -1,7 +1,7 @@
 'use client';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import illustration from '../../assets/landing-illustration.svg';
+import illustration from '../../public/assets/landing-illustration.svg';
 import Image from 'next/image';
 
 const LandingContent = () => {
@@ -10,16 +10,14 @@ const LandingContent = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   };
 
-  // Ref for the parent container
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true }); // Trigger animation only once when visible
+  const isInView = useInView(ref, { once: true });
 
   return (
     <div
       ref={ref}
       className="bg-black px-10 pb-20 w-full flex items-center"
     >
-      {/* Text Section with fade-in */}
       <motion.div
         className="w-1/2"
         variants={fadeIn}
@@ -31,7 +29,6 @@ const LandingContent = () => {
         </h2>
       </motion.div>
 
-      {/* Image Section with fade-in */}
       <motion.div
         className="w-1/2 flex justify-center"
         variants={fadeIn}
