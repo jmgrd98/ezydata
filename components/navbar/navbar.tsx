@@ -18,13 +18,16 @@ const Navbar = ({ children }: { children?: React.ReactNode }) => {
 
   return (
     <header className="w-full flex items-center justify-between p-3 border-b bg-background">
-      <div className="flex items-center">
-        {children}
-      </div>
+      <div className='flex items-center gap-5'>
+        <div className="flex items-center">
+          {children}
+        </div>
 
-      <p className="comfortaa text-3xl font-bold align-self-start cursor-pointer" onClick={() => router.push('/dashboard')}>
-        EZYDATA
-      </p>
+        <p className="comfortaa text-3xl font-bold align-self-start cursor-pointer" onClick={() => router.push('/dashboard')}>
+          EZYDATA
+        </p>
+
+      </div>
       
       <div className='flex items-center gap-5'>
         <Select onValueChange={(value) => setAiModel(value as 'openai' | 'gemini' | 'claude' | 'deepseek')} defaultValue={aiModel}>

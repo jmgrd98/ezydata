@@ -36,6 +36,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import i18n from '@/translation';
+import { IoMic, IoMicOff } from 'react-icons/io5';
 
 interface IProjectPageProps {
   params: {
@@ -72,6 +74,39 @@ export default function ProjectPage({ params }: IProjectPageProps) {
     charts: [],
     table: '',
   });
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [recognitionError, setRecognitionError] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = i18n.language;
+  
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0])
+            .map(result => result.transcript)
+            .join('');
+          setUserInput(prev => (prev + ' ' + transcript));
+        };
+  
+        recognition.onerror = (event) => {
+          console.log('event.error:', event.error);
+          setRecognitionError(`Speech recognition error: ${event.error}`);
+        };
+        setRecognition(recognition);
+      } else {
+        setRecognitionError('Speech recognition not supported in this browser');
+        console.error(recognitionError);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -126,6 +161,22 @@ export default function ProjectPage({ params }: IProjectPageProps) {
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
   };
+
+  const toggleSpeechRecognition = () => {
+    if (!recognition) return;
+    
+    if (!isRecording) {
+
+        recognition.start();
+      setIsRecording(true);
+    } else {
+      recognition.stop();
+      setIsRecording(false);
+    }
+  };
+  recognition?.addEventListener('end', () => {
+    setIsRecording(false);
+  });
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
@@ -648,10 +699,22 @@ export default function ProjectPage({ params }: IProjectPageProps) {
                       placeholder={t('textareaPlaceholder')}
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
-                      className="mt-4 border border-gray-300 rounded p-2 w-full"
+                      className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
                       onKeyDown={handleKeyPress}
                     />
+                    <div className="flex items-center gap-2">
                     {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+                    <button
+                        type="button"
+                        onClick={toggleSpeechRecognition}
+                        disabled={!recognition || loading}
+                        className={`p-2 rounded-full ${
+                          isRecording ? 'bg-red-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                        }`}
+                      >
+                        {isRecording ? <IoMicOff size={20} /> : <IoMic size={20} />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-center m-4 gap-4">
