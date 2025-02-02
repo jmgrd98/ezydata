@@ -69,6 +69,11 @@ export default function Home() {
   const [recognition, setRecognition] = useState<any>(null);
   const [recognitionError, setRecognitionError] = useState('');
 
+  const tableDataRef = useRef<string[][] | null>(null);
+  useEffect(() => {
+    tableDataRef.current = tableData;
+  }, [tableData]);
+
   const totalPages =
     tableData && tableData.length > 0
       ? rowsPerPage === 'all'
@@ -254,7 +259,6 @@ export default function Home() {
           t('error.unexpected'),
         duration: 5000,
       });
-      // setTableData(null);
       setOriginalTableData(null);
     } finally {
       setLoading(false);
@@ -271,8 +275,9 @@ export default function Home() {
 
   const handleGenerateCommand = async (prompt?: string) => {
     const effectivePrompt = prompt ?? userInput;
-    console.log(tableData)
-    if (!tableData) {
+    const currentTableData = tableDataRef.current;
+    
+    if (!currentTableData) {
       toast({
         title: t('toast.noDatasetTitle'),
         description: t('toast.noDatasetDesc'),
@@ -293,7 +298,7 @@ export default function Home() {
     setLoading(true);
   
     try {
-      const csvData = tableData.map((row) => row.join(',')).join('\n');
+      const csvData = currentTableData.map((row) => row.join(',')).join('\n');
       
       const isChartRequest = /chart|graph|plot|visualize|gráfico|grafico/i.test(userInput);
       const endpoint = isChartRequest
