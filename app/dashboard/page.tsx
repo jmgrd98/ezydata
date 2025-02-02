@@ -66,7 +66,7 @@ export default function Home() {
   const [data, setData] = useState();
 
   const [isRecording, setIsRecording] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [recognitionError, setRecognitionError] = useState('');
 
   const tableDataRef = useRef<string[][] | null>(null);
@@ -112,10 +112,11 @@ export default function Home() {
           console.log('event.error:', event.error);
           setRecognitionError(`Speech recognition error: ${event.error}`);
         };
-  
+        console.log('recognition', recognition)
         setRecognition(recognition);
       } else {
         setRecognitionError('Speech recognition not supported in this browser');
+        console.error(recognitionError);
       }
     }
   }, []);
@@ -276,7 +277,7 @@ export default function Home() {
   const handleGenerateCommand = async (prompt?: string) => {
     const effectivePrompt = prompt ?? userInput;
     const currentTableData = tableDataRef.current;
-    
+
     if (!currentTableData) {
       toast({
         title: t('toast.noDatasetTitle'),

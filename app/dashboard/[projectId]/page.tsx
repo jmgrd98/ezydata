@@ -76,7 +76,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
   });
 
   const [isRecording, setIsRecording] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [recognitionError, setRecognitionError] = useState('');
 
   useEffect(() => {
@@ -100,10 +100,10 @@ export default function ProjectPage({ params }: IProjectPageProps) {
           console.log('event.error:', event.error);
           setRecognitionError(`Speech recognition error: ${event.error}`);
         };
-  
         setRecognition(recognition);
       } else {
         setRecognitionError('Speech recognition not supported in this browser');
+        console.error(recognitionError);
       }
     }
   }, []);

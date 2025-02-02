@@ -71,7 +71,7 @@ const FullScreenTableModal = ({
   const { t } = useTranslation();
 
   const [isRecording, setIsRecording] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [recognitionError, setRecognitionError] = useState('');
 
   useEffect(() => {
@@ -99,6 +99,7 @@ const FullScreenTableModal = ({
           setRecognition(recognition);
         } else {
           setRecognitionError('Speech recognition not supported in this browser');
+          console.error(recognitionError);
         }
       }
     }, []);
