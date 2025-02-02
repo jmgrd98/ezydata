@@ -42,6 +42,7 @@ import { IoSend } from "react-icons/io5";
 import { useProjects } from '@/contexts/ProjectsContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAiModel } from '@/contexts/AiModelsContext';
+import { IoMic, IoMicOff } from 'react-icons/io5';
 
 export default function Home() {
   const { toast } = useToast();
@@ -64,6 +65,10 @@ export default function Home() {
   const { projects } = useProjects();
   const [data, setData] = useState();
 
+  const [isRecording, setIsRecording] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
+  const [recognitionError, setRecognitionError] = useState('');
+
   const totalPages =
     tableData && tableData.length > 0
       ? rowsPerPage === 'all'
@@ -77,6 +82,38 @@ export default function Home() {
       : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
 
       const GITHUB_API_URL = "https://api.github.com/repos/jmgrd98/httpro/contents";
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        console.log('LANGUAGE', i18n.language)
+        recognition.lang = i18n.language;
+  
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0])
+            .map(result => result.transcript)
+            .join('');
+          setUserInput(transcript);
+          // setTableData(tableData);
+          handleGenerateCommand(transcript);
+        };
+  
+        recognition.onerror = (event) => {
+          console.log('event.error:', event.error);
+          setRecognitionError(`Speech recognition error: ${event.error}`);
+        };
+  
+        setRecognition(recognition);
+      } else {
+        setRecognitionError('Speech recognition not supported in this browser');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) router.push('/')
@@ -111,7 +148,7 @@ export default function Home() {
 
   useEffect(() => {
     console.log(data);
-  }, [data])
+  }, [data]);
 
   useEffect(() => {
     detectLanguage();
@@ -217,10 +254,11 @@ export default function Home() {
           t('error.unexpected'),
         duration: 5000,
       });
-      setTableData(null);
+      // setTableData(null);
       setOriginalTableData(null);
     } finally {
       setLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -231,7 +269,9 @@ export default function Home() {
     }
   };
 
-  const handleGenerateCommand = async () => {
+  const handleGenerateCommand = async (prompt?: string) => {
+    const effectivePrompt = prompt ?? userInput;
+    console.log(tableData)
     if (!tableData) {
       toast({
         title: t('toast.noDatasetTitle'),
@@ -241,7 +281,7 @@ export default function Home() {
       return;
     }
   
-    if (!userInput) {
+    if (!effectivePrompt) {
       toast({
         title: t('toast.noPromptTitle'),
         description: t('toast.noPromptDesc'),
@@ -266,7 +306,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           csv_data: csvData,
-          instruction: userInput,
+          instruction: effectivePrompt,
           model: aiModel
         }),
       });
@@ -392,6 +432,22 @@ export default function Home() {
       });
     }
   };
+
+  const toggleSpeechRecognition = () => {
+    if (!recognition || loading) return;
+    
+    if (!isRecording) {
+
+        recognition.start();
+      setIsRecording(true);
+    } else {
+      recognition.stop();
+      setIsRecording(false);
+    }
+  };
+  recognition?.addEventListener('end', () => {
+    setIsRecording(false);
+  });
 
   return (
     <I18nextProvider i18n={i18n}>
@@ -640,7 +696,19 @@ export default function Home() {
                   className="mt-4 border border-gray-300 rounded p-2 w-full max-w-3xl"
                   onKeyDown={handleKeyPress}
                 />
-                {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+                <div className="flex items-center gap-2">
+                {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={() => handleGenerateCommand()} />}
+                <button
+                    type="button"
+                    onClick={toggleSpeechRecognition}
+                    disabled={!recognition || loading}
+                    className={`p-2 rounded-full ${
+                      isRecording ? 'bg-red-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                    }`}
+                  >
+                    {isRecording ? <IoMicOff size={20} /> : <IoMic size={20} />}
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center justify-center m-4 gap-4">
