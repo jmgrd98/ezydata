@@ -24,7 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import Image from 'next/image';
 import { IoSend } from 'react-icons/io5';
 import { IoMic, IoMicOff } from 'react-icons/io5';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import i18n from '@/translation';
 
 interface IFullScreenTableProps {
@@ -73,6 +73,11 @@ const FullScreenTableModal = ({
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [recognitionError, setRecognitionError] = useState('');
+
+  const tableDataRef = useRef<string[][] | null>(null);
+    useEffect(() => {
+      tableDataRef.current = tableData;
+    }, [tableData]);
 
   useEffect(() => {
       if (typeof window !== 'undefined') {

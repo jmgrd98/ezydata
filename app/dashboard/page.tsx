@@ -104,7 +104,6 @@ export default function Home() {
             .map(result => result.transcript)
             .join('');
           setUserInput(transcript);
-          // setTableData(tableData);
           handleGenerateCommand(transcript);
         };
   
