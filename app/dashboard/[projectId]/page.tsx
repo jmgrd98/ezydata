@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/tooltip"
 import i18n from '@/translation';
 import { IoMic, IoMicOff } from 'react-icons/io5';
+import { useRouter } from 'next/navigation'
 
 interface IProjectPageProps {
   params: {
@@ -52,6 +53,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
   const { toast } = useToast()
   const { t } = useTranslation();
   const { projects } = useProjects();
+  const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -78,6 +80,15 @@ export default function ProjectPage({ params }: IProjectPageProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [recognitionError, setRecognitionError] = useState('');
+
+  useEffect(() => {
+      if (!user) router.push('/')
+    }, [router, user]);
+
+  const tableDataRef = useRef<string[][] | null>(null);
+    useEffect(() => {
+      tableDataRef.current = tableData;
+    }, [tableData]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -273,8 +284,11 @@ export default function ProjectPage({ params }: IProjectPageProps) {
         }
       };
 
-  const handleGenerateCommand = async () => {
-    if (!tableData) {
+  const handleGenerateCommand = async (prompt?: string) => {
+    const effectivePrompt = prompt ?? userInput;
+    const currentTableData = tableDataRef.current;
+
+    if (!currentTableData) {
       toast({
         title: t('toast.noDatasetTitle'),
         description: t('toast.noDatasetDesc'),
@@ -283,7 +297,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
       return;
     }
   
-    if (!userInput) {
+    if (!effectivePrompt) {
       toast({
         title: t('toast.noPromptTitle'),
         description: t('toast.noPromptDesc'),
@@ -295,7 +309,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
     setLoading(true);
   
     try {
-      const csvData = tableData.map((row) => row.join(',')).join('\n');
+      const csvData = currentTableData.map((row) => row.join(',')).join('\n');
       
       const isChartRequest = /chart|graph|plot|visualize|gráfico|grafico/i.test(userInput);
       const endpoint = isChartRequest
@@ -703,7 +717,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
                       onKeyDown={handleKeyPress}
                     />
                     <div className="flex items-center gap-2">
-                    {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={handleGenerateCommand} />}
+                    {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={() => handleGenerateCommand()} />}
                     <button
                         type="button"
                         onClick={toggleSpeechRecognition}
