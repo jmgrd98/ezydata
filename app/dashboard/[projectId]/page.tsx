@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { db, Project } from '@/firebase/db'
-import { collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table'
