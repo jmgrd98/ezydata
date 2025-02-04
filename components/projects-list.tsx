@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { db } from '@/firebase/db'
 import { Project } from '@/firebase/db'
-import { collection, query, where, onSnapshot, deleteDoc, doc, QuerySnapshot } from 'firebase/firestore'
+import { deleteDoc, doc } from 'firebase/firestore'
 import { FaTrash, FaEdit } from 'react-icons/fa'
 import EditProjectModal from './edit-project-modal'
 import { useUser } from '@clerk/nextjs'
