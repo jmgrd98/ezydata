@@ -10,6 +10,7 @@ import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useProjects } from '@/contexts/ProjectsContext'
 import DeleteConfirmationModal from './delete-confirmation-modal'
+import GetAllProjectsFromUser from '@/firebase/GetAllProjectsFromUser'
 
 const ProjectsList = () => {
   const { user } = useUser();
@@ -22,28 +23,13 @@ const ProjectsList = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   useEffect(() => {
-    let unsubscribeSnapshot: () => void
-
-    if (user) {
-      const q = query(
-        collection(db, 'projects'),
-        where('ownerId', '==', user.id)
-      )
-      
-      unsubscribeSnapshot = onSnapshot(q, (snapshot: QuerySnapshot) => {
-        const projectsData: Project[] = []
-        snapshot.forEach((doc) => {
-          projectsData.push({ id: doc.id, ...doc.data() } as Project)
-        })
-        setProjects(projectsData)
-      })
-    } else {
-      setProjects([])
+    const fetchProjectsFromUser = async () => {
+      if (user && user.id) {
+        await GetAllProjectsFromUser({userId: user.id, setProjects})
+      }
     }
 
-    return () => {
-      if (unsubscribeSnapshot) unsubscribeSnapshot()
-    }
+    fetchProjectsFromUser()
   }, [user, user?.id, setProjects])
 
   const handleConfirmDelete = async () => {

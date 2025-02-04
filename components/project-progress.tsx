@@ -11,7 +11,6 @@ const ProjectProgress = () => {
   const [loading, setLoading] = useState(false);
 
   const onSubscribe = async () => {
-    console.log(loading)
     try {
         setLoading(true);
         const response = await axios.get('/api/stripe');

@@ -39,6 +39,7 @@ import {
 import i18n from '@/translation';
 import { IoMic, IoMicOff } from 'react-icons/io5';
 import { useRouter } from 'next/navigation'
+import GetProject from '@/firebase/GetProject'
 
 interface IProjectPageProps {
   params: {
@@ -123,17 +124,11 @@ export default function ProjectPage({ params }: IProjectPageProps) {
     const fetchProject = async () => {
       try {
         setLoading(true)
-        const projectRef = doc(db, 'projects', projectId)
-        const projectSnap = await getDoc(projectRef)
-
-        if (!projectSnap.exists()) throw new Error('Project not found')
-        
-        const projectData = projectSnap.data()
-
+        const projectData = await GetProject({projectId});
         setCurrentProject(projectData as Project);
 
         if (projectData.ownerId !== user?.id) throw new Error('Unauthorized access')
-        console.log('PROJECT DATA', projectData)
+
         if (projectData.table) {
           setTableData(JSON.parse(projectData.table))
         }
