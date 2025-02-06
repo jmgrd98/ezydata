@@ -31,7 +31,6 @@ export async function POST(req: Request) {
             session.subscription as string
         );
     
-        // Propagate user ID to subscription metadata
         if (session?.metadata?.userId) {
             await stripe.subscriptions.update(subscription.id, {
                 metadata: {
@@ -49,7 +48,7 @@ export async function POST(req: Request) {
             invoice.subscription as string
         );
         
-        const userId = subscription.metadata.userId; // Get from subscription metadata
+        const userId = subscription.metadata.userId;
     
         if (!userId) {
             return new NextResponse('UserId is required', { status: 400 });
