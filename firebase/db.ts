@@ -28,4 +28,11 @@ export interface Project {
   createdAt?: Date;
 }
 
+export interface User {
+  id?: string;
+  name: string;
+  role: string;
+  createdAt?: Date;
+}
+
 export { app, db, auth, storage };

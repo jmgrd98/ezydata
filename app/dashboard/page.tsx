@@ -34,7 +34,7 @@ import { TiUpload } from "react-icons/ti";
 import { FaRegSave } from "react-icons/fa";
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db, } from '@/firebase/db';
-import { useUser } from '@clerk/nextjs';
+import { useAuth, useUser } from '@clerk/nextjs';
 import { BsSave2 } from "react-icons/bs";
 import { IoMdRefresh } from "react-icons/io";
 import { useRouter } from 'next/navigation';
@@ -45,11 +45,13 @@ import { useAiModel } from '@/contexts/AiModelsContext';
 import { IoMic, IoMicOff } from 'react-icons/io5';
 
 export default function Home() {
+  const router = useRouter();
+
   const { toast } = useToast();
   const { t } = useTranslation();
   const { user } = useUser();
-  const router = useRouter();
   const { aiModel } = useAiModel();
+  const { isSignedIn } = useAuth();
 
   const [tableData, setTableData] = useState<string[][] | null>(null);
   const [originalTableData, setOriginalTableData] = useState<string[][] | null>(null);
