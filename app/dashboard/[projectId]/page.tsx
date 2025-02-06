@@ -39,7 +39,7 @@ import {
 import i18n from '@/translation';
 import { IoMic, IoMicOff } from 'react-icons/io5';
 import { useRouter } from 'next/navigation'
-import GetProject from '@/firebase/GetProject'
+import GetProject from '@/firebase/Projects/GetProject'
 
 interface IProjectPageProps {
   params: {

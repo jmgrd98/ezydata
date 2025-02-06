@@ -1,5 +1,5 @@
 import { collection, onSnapshot, query, QuerySnapshot, where } from "firebase/firestore"
-import { db, Project } from "./db"
+import { db, Project } from "../db"
 
 interface IGetAllProjectsFromUser {
   userId: string;

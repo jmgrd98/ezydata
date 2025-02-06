@@ -13,7 +13,6 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -25,6 +24,14 @@ export interface Project {
   table: string;
   charts: string[];
   ownerId: string;
+  createdAt?: Date;
+}
+
+export interface User {
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
   createdAt?: Date;
 }
 

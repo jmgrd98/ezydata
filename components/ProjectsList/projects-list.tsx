@@ -9,7 +9,7 @@ import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useProjects } from '@/contexts/ProjectsContext'
 import DeleteConfirmationModal from '../delete-confirmation-modal'
-import GetAllProjectsFromUser from '@/firebase/GetAllProjectsFromUser'
+import GetAllProjectsFromUser from '@/firebase/Projects/GetAllProjectsFromUser'
 import './style.scss';
 
 const ProjectsList = () => {
