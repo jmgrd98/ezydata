@@ -7,6 +7,7 @@ interface IUpdateUserProps {
 }
 
 export default async function UpdateUser({ userId, data }: IUpdateUserProps) {
+    console.log('ENTROU UPDATE USER')
     const userRef = doc(db, "users", userId);
 
     await updateDoc(userRef, data);
