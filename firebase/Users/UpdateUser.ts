@@ -3,7 +3,7 @@ import { db, User } from "../db";
 
 interface IUpdateUserProps {
     userId: string;
-    data: Partial<Record<string, User>>; // Allows partial updates
+    data: Partial<User>;
 }
 
 export default async function UpdateUser({ userId, data }: IUpdateUserProps) {
