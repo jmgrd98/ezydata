@@ -1,5 +1,5 @@
 import { doc, updateDoc } from "firebase/firestore";
-import { db, Project } from "./db";
+import { db, Project } from "../db";
 
 interface IUpdateProjectProps {
     projectId: string;

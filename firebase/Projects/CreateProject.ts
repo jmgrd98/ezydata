@@ -1,5 +1,5 @@
 import { doc, setDoc } from "firebase/firestore";
-import { db, Project } from "./db";
+import { db, Project } from "../db";
 
 interface ICreateProjectProps {
     projectId: string;
