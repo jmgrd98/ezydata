@@ -1,16 +1,16 @@
-// components/projects-list.tsx
 'use client'
 import { useEffect, useState } from 'react'
 import { db } from '@/firebase/db'
 import { Project } from '@/firebase/db'
 import { deleteDoc, doc } from 'firebase/firestore'
 import { FaTrash, FaEdit } from 'react-icons/fa'
-import EditProjectModal from './edit-project-modal'
+import EditProjectModal from '../edit-project-modal'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useProjects } from '@/contexts/ProjectsContext'
-import DeleteConfirmationModal from './delete-confirmation-modal'
+import DeleteConfirmationModal from '../delete-confirmation-modal'
 import GetAllProjectsFromUser from '@/firebase/GetAllProjectsFromUser'
+import './style.scss';
 
 const ProjectsList = () => {
   const { user } = useUser();
@@ -25,10 +25,9 @@ const ProjectsList = () => {
   useEffect(() => {
     const fetchProjectsFromUser = async () => {
       if (user && user.id) {
-        await GetAllProjectsFromUser({userId: user.id, setProjects})
+        await GetAllProjectsFromUser({ userId: user.id, setProjects })
       }
     }
-
     fetchProjectsFromUser()
   }, [user, user?.id, setProjects])
 
@@ -45,7 +44,7 @@ const ProjectsList = () => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-3">
+    <div className="w-full flex flex-col gap-3 overflow-y-auto max-h-[70vh] scrollbar-custom">
       {projects.map((project) => (
         <div 
           key={project.id} 
@@ -54,21 +53,25 @@ const ProjectsList = () => {
         >
           <h3 className="text-xl font-bold mb-2">{project.name}</h3>
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-              <FaEdit className='cursor-pointer' size={20} onClick={(e) => {
+            <FaEdit 
+              className='cursor-pointer' 
+              size={20} 
+              onClick={(e) => {
                 e.stopPropagation();
                 setSelectedProject(project);
                 setIsEditModalOpen(true);
-              }}/>
-             <FaTrash 
-                className='cursor-pointer' 
-                size={20} 
-                color='red' 
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setProjectToDelete(project)
-                  setIsDeleteModalOpen(true)
-                }} 
-              />
+              }}
+            />
+            <FaTrash 
+              className='cursor-pointer' 
+              size={20} 
+              color='red' 
+              onClick={(e) => {
+                e.stopPropagation();
+                setProjectToDelete(project);
+                setIsDeleteModalOpen(true);
+              }} 
+            />
           </div>
         </div>
       ))}
@@ -82,7 +85,6 @@ const ProjectsList = () => {
           isOpen={isEditModalOpen}
         />
       )}
-
       {isDeleteModalOpen && (
         <DeleteConfirmationModal
           onClose={() => {
