@@ -25,7 +25,7 @@ const ProjectProgress = () => {
 };
 
   return (
-    <div className='p-5 border-t flex flex-col gap-2'>
+    <div className='fixed bottom-0 bg-white p-5 border-t flex flex-col gap-2'>
       <p>{projects.length} de 5 projetos gratuitos criados</p>
       <Progress value={(projects.length / 5) * 100} className='bg-gray-300' />
 
