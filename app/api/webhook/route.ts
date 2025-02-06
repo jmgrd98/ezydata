@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         if (!userId) {
             return new NextResponse('UserId is required', { status: 400 });
         }
-    
+        console.log('VAI ENTRAR')
         await UpdateUser({
             userId,
             data: {
