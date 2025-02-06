@@ -66,7 +66,7 @@ export default function Home() {
   const [graphData, setGraphData] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'table' | 'chart'>("table");
   const { projects } = useProjects();
-  const [data, setData] = useState();
+  // const [data, setData] = useState();
 
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
@@ -89,7 +89,7 @@ export default function Home() {
       ? tableData?.slice(1)
       : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
 
-      const GITHUB_API_URL = "https://api.github.com/repos/jmgrd98/httpro/contents";
+      // const GITHUB_API_URL = "https://api.github.com/repos/jmgrd98/httpro/contents";
 
   useEffect(() => {
     const saveUser = async () => {
@@ -178,9 +178,9 @@ export default function Home() {
   //   fetchRepos();
   // }, []);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  // useEffect(() => {
+  //   console.log(data);
+  // }, [data]);
 
   useEffect(() => {
     detectLanguage();
