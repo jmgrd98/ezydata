@@ -125,7 +125,6 @@ export default function Home() {
   }, [router, user]);
 
   useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_GITHUB_TOKEN)
     const fetchRepos = async () => {
       try {
         const response = await fetch(`${GITHUB_API_URL}/package.json`, {
@@ -498,9 +497,9 @@ export default function Home() {
           ) : tableData && !isFullScreen && !graphData ? (
             <>
               <div className="relative max-h-[300px] w-full flex flex-col overflow-auto">
-                <Button 
+                <Button
                   className=' w-fit mb-2 z-10' 
-                  variant={'ghost'} 
+                  variant={'ghost'}
                   onClick={toggleFullScreen}
                   aria-label={t('expandTable')}
                 >
