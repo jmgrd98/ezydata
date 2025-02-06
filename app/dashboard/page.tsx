@@ -92,12 +92,9 @@ export default function Home() {
       const GITHUB_API_URL = "https://api.github.com/repos/jmgrd98/httpro/contents";
 
   useEffect(() => {
-    console.log('IS SIGNED IN', isSignedIn);
-    console.log('USER', user);
-
     const saveUser = async () => {
       try {
-        await CreateUser({
+        const response = await CreateUser({
           userId: user!.id,
           data: {
             id: user!.id,
@@ -107,6 +104,7 @@ export default function Home() {
             createdAt: new Date(),
           }
         });
+        console.log('USER', response)
       } catch (error) {
         console.error('Error saving user:', error);
       }
@@ -126,7 +124,6 @@ export default function Home() {
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
-        console.log('LANGUAGE', i18n.language)
         recognition.lang = i18n.language;
   
         recognition.onresult = (event) => {
@@ -155,31 +152,31 @@ export default function Home() {
     if (!user) router.push('/')
   }, [router, user]);
 
-  useEffect(() => {
-    const fetchRepos = async () => {
-      try {
-        const response = await fetch(`${GITHUB_API_URL}/package.json`, {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3+json",
-          },
-        });
+  // useEffect(() => {
+  //   const fetchRepos = async () => {
+  //     try {
+  //       const response = await fetch(`${GITHUB_API_URL}/package.json`, {
+  //         headers: {
+  //           Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+  //           Accept: "application/vnd.github.v3+json",
+  //         },
+  //       });
 
-        console.log('RESPONSE', response)
+  //       console.log('RESPONSE', response)
 
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
+  //       if (!response.ok) {
+  //         throw new Error(`Error: ${response.status}`);
+  //       }
 
-        const jsonData = await response.json();
-        setData(jsonData);
-      } catch (error) {
-        console.error("Failed to fetch repos:", error);
-      }
-    };
+  //       const jsonData = await response.json();
+  //       setData(jsonData);
+  //     } catch (error) {
+  //       console.error("Failed to fetch repos:", error);
+  //     }
+  //   };
 
-    fetchRepos();
-  }, []);
+  //   fetchRepos();
+  // }, []);
 
   useEffect(() => {
     console.log(data);
