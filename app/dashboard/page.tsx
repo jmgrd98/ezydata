@@ -43,6 +43,7 @@ import { useProjects } from '@/contexts/ProjectsContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAiModel } from '@/contexts/AiModelsContext';
 import { IoMic, IoMicOff } from 'react-icons/io5';
+import CreateUser from '@/firebase/Users/CreateUser';
 
 export default function Home() {
   const router = useRouter();
@@ -89,6 +90,34 @@ export default function Home() {
       : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
 
       const GITHUB_API_URL = "https://api.github.com/repos/jmgrd98/httpro/contents";
+
+  useEffect(() => {
+    console.log('IS SIGNED IN', isSignedIn);
+    console.log('USER', user);
+
+    const saveUser = async () => {
+      try {
+        await CreateUser({
+          userId: user!.id,
+          data: {
+            id: user!.id,
+            name: user!.firstName + ' ' + user!.lastName,
+            email: user!.emailAddresses[0].emailAddress,
+            role: 'user',
+            createdAt: new Date(),
+          }
+        });
+      } catch (error) {
+        console.error('Error saving user:', error);
+      }
+    }
+
+    if (isSignedIn) {
+      saveUser();
+    }
+    
+    
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
