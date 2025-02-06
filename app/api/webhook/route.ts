@@ -6,7 +6,7 @@ import UpdateUser from '@/firebase/Users/UpdateUser';
 
 export async function POST(req: Request) {
     console.log('ENTROU NO WEBHOOOOK');
-    const body: any = await req.text();
+    const body: string = await req.text();
     const signature = headers().get('Stripe-Signature') as string;
 
     let event: Stripe.Event;
@@ -17,9 +17,9 @@ export async function POST(req: Request) {
             signature,
             process.env.STRIPE_WEBHOOK_SECRET!
         );
-    } catch (error: any) {
+    } catch (error) {
         console.error(error);
-        return new NextResponse(`WEBHOOK_ERROR: ${error.message}`, { status: 400 });
+        return new NextResponse(`WEBHOOK_ERROR: ${(error as Error).message}`, { status: 400 });
     }
 
     const session = event.data.object as Stripe.Checkout.Session;
@@ -28,6 +28,8 @@ export async function POST(req: Request) {
         const subscription = await stripe.subscriptions.retrieve(
             session.subscription as string
         );
+
+        console.log(subscription);
 
         if (!session?.metadata?.userId) {
             return new NextResponse('UserId is required', { status: 400 });
@@ -38,13 +40,14 @@ export async function POST(req: Request) {
         const subscription = await stripe.subscriptions.retrieve(
             session.subscription as string
         );
+        
+        console.log(subscription);
 
         const userId = session?.metadata?.userId;
 
         if (!userId) {
             return new NextResponse('UserId is required', { status: 400 });
         }
-
 
         await UpdateUser({
             userId,
