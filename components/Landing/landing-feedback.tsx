@@ -64,6 +64,8 @@ const LandingFeedback = () => {
                           src={`/assets/people-testimonials/person${index + 1}.jpg`}
                           alt={testimonial.name}
                           className="h-full w-full object-cover"
+                          width={48}
+                          height={48}
                         />
                       </div>
                       <div>
