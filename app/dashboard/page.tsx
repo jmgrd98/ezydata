@@ -33,7 +33,7 @@ import Image from 'next/image';
 import { TiUpload } from "react-icons/ti";
 import { FaRegSave } from "react-icons/fa";
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db, } from '@/firebase/db';
+import { db, User, } from '@/firebase/db';
 import { useAuth, useUser } from '@clerk/nextjs';
 import { BsSave2 } from "react-icons/bs";
 import { IoMdRefresh } from "react-icons/io";
@@ -44,6 +44,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useAiModel } from '@/contexts/AiModelsContext';
 import { IoMic, IoMicOff } from 'react-icons/io5';
 import CreateUser from '@/firebase/Users/CreateUser';
+import GetUser from '@/firebase/Users/GetUser';
 
 export default function Home() {
   const router = useRouter();
@@ -66,11 +67,12 @@ export default function Home() {
   const [graphData, setGraphData] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'table' | 'chart'>("table");
   const { projects } = useProjects();
-  // const [data, setData] = useState();
 
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [recognitionError, setRecognitionError] = useState('');
+
+  const [firebaseUser, setFirebaseUser] = useState<User | null>();
 
   const tableDataRef = useRef<string[][] | null>(null);
   useEffect(() => {
@@ -89,7 +91,13 @@ export default function Home() {
       ? tableData?.slice(1)
       : tableData?.slice((currentPage - 1) * rowsPerPage + 1, currentPage * rowsPerPage + 1);
 
-      // const GITHUB_API_URL = "https://api.github.com/repos/jmgrd98/httpro/contents";
+  useEffect(() => {
+    if (user && user.id) {
+      GetUser({ userId: user.id })
+        .then(data => setFirebaseUser(data))
+        .catch(err => console.error("Failed to get user:", err))
+    }
+  }, [user]);
 
   useEffect(() => {
     const saveUser = async () => {
@@ -104,7 +112,7 @@ export default function Home() {
             createdAt: new Date(),
           }
         });
-        console.log('USER', response)
+        console.log('User saved on database:', response)
       } catch (error) {
         console.error('Error saving user:', error);
       }
@@ -151,36 +159,6 @@ export default function Home() {
   useEffect(() => {
     if (!user) router.push('/')
   }, [router, user]);
-
-  // useEffect(() => {
-  //   const fetchRepos = async () => {
-  //     try {
-  //       const response = await fetch(`${GITHUB_API_URL}/package.json`, {
-  //         headers: {
-  //           Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
-  //           Accept: "application/vnd.github.v3+json",
-  //         },
-  //       });
-
-  //       console.log('RESPONSE', response)
-
-  //       if (!response.ok) {
-  //         throw new Error(`Error: ${response.status}`);
-  //       }
-
-  //       const jsonData = await response.json();
-  //       setData(jsonData);
-  //     } catch (error) {
-  //       console.error("Failed to fetch repos:", error);
-  //     }
-  //   };
-
-  //   fetchRepos();
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log(data);
-  // }, [data]);
 
   useEffect(() => {
     detectLanguage();
@@ -731,15 +709,25 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                 {loading ? <Loader /> : <IoSend className='cursor-pointer' onClick={() => handleGenerateCommand()} />}
                 <button
-                    type="button"
-                    onClick={toggleSpeechRecognition}
-                    disabled={!recognition || loading}
-                    className={`p-2 rounded-full ${
-                      isRecording ? 'bg-red-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
-                    }`}
-                  >
-                    {isRecording ? <IoMicOff size={20} /> : <IoMic size={20} />}
-                  </button>
+                  type="button"
+                  onClick={() => {
+                    if (firebaseUser?.role !== 'premium') {
+                      toast({
+                        title: "Upgrade Required",
+                        description: "Upgrade to Pro to access speech recognition.",
+                        variant: "destructive"
+                      });
+                    } else {
+                      toggleSpeechRecognition();
+                    }
+                  }}
+                  disabled={!recognition || loading}
+                  className={`p-2 rounded-full ${
+                    isRecording ? 'bg-red-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
+                >
+                  {isRecording ? <IoMicOff size={20} /> : <IoMic size={20} />}
+                </button>
                 </div>
               </div>
 
