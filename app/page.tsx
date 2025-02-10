@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import LandingContent from "@/components/Landing/LandingContent";
 import LandingVideo from "@/components/Landing/landing-video";
+import LandingFooter from "@/components/Landing/landing-footer";
 
 const LandingPage = () => {
 
@@ -47,6 +48,7 @@ const LandingPage = () => {
       <LandingHero />
       <LandingContent />
       <LandingVideo />
+      <LandingFooter />
     </div>
   )
 }

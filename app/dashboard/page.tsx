@@ -45,6 +45,7 @@ import { useAiModel } from '@/contexts/AiModelsContext';
 import { IoMic, IoMicOff } from 'react-icons/io5';
 import CreateUser from '@/firebase/Users/CreateUser';
 import GetUser from '@/firebase/Users/GetUser';
+import '../../styles/custom-scrollbar.scss';
 
 export default function Home() {
   const router = useRouter();
@@ -511,7 +512,7 @@ export default function Home() {
                 >
                   {t('expandTable')}<FaExpandAlt />
                 </Button>
-                <Table className="min-w-full">
+                <Table className="min-w-full scrollbar-custom">
                   <TableHeader>
                     <TableRow className='bg-gray-200'>
                       {tableData[0].map((header, index) => (
@@ -595,7 +596,7 @@ export default function Home() {
                       >
                         {t('expandTable')}<FaExpandAlt />
                   </Button>
-                    <Table className="min-w-full">
+                    <Table className="min-w-full scrollbar-custom">
                       <TableHeader>
                         <TableRow className="bg-gray-200">
                           {tableData![0].map((header, index) => (

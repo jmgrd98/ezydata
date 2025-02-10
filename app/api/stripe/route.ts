@@ -21,7 +21,7 @@ export async function GET() {
     const isBrazil = countryCode === "BR";
 
     const currency = isBrazil ? "BRL" : "USD";
-    const unitAmount = isBrazil ? 100 : 100;
+    const unitAmount = isBrazil ? 5000 : 1000;
     const description = isBrazil
       ? "Plataforma de IA low code para análise de dados"
       : "AI-powered low code platform for data analysts.";
