@@ -9,6 +9,7 @@ import {
 } from '../ui/carousel'
 import Autoplay from "embla-carousel-autoplay"
 import { useTranslation } from 'react-i18next'
+import Image from 'next/image'
 
 interface Testimonial {
   quote: string
@@ -43,7 +44,7 @@ const LandingFeedback = () => {
           onMouseEnter={plugin.current.stop}
           onMouseLeave={(event) => {
             console.log(event)
-            plugin.current.play
+            plugin.current.play()
           }}
         >
           <CarouselContent className="-ml-4">
@@ -59,14 +60,14 @@ const LandingFeedback = () => {
                     </p>
                     <div className="flex items-center gap-4">
                       <div className="h-12 w-12 rounded-full overflow-hidden">
-                        <img 
+                        <Image 
                           src={`/assets/people-testimonials/person${index + 1}.jpg`}
                           alt={testimonial.name}
                           className="h-full w-full object-cover"
                         />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold">{testimonial.name}</h3>
+                        <h3 className="text-gray-400 text-lg font-bold">{testimonial.name}</h3>
                         <p className="text-gray-400">{testimonial.role}</p>
                       </div>
                     </div>
