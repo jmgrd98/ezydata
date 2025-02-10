@@ -24,6 +24,9 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "Ezydata",
   description: "AI-powered low code platform for data analysts.",
+  icons: {
+    icon: '/assets/favicon.ico',
+  },
 };
 
 export default function RootLayout({
