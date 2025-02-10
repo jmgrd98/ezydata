@@ -58,6 +58,10 @@ const resources = {
         landingVideo: {
           title: "See how it works",
         },
+        landingFooter: {
+          developedBy: "Developed by João Marcelo Dantas",
+          allRightsReserved: "Ezydata © All rights reserved.",
+        },
       },
 
       deleteModal: {
@@ -130,6 +134,10 @@ const resources = {
         },
         landingVideo: {
           title: "Veja como funciona",
+        },
+        landingFooter: {
+          developedBy: "Desenvolvido por João Marcelo Dantas",
+          allRightsReserved: "Ezydata © Todos os direitos reservados.",
         },
       },
 
