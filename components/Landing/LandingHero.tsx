@@ -47,10 +47,6 @@ const LandingHero = () => {
           </Button>
         </Link>
       </div>
-
-      <div className='text-zinc-400 text-sm md:text-[16px] font-normal'>
-        {t('landing.landingHero.noCreditCard')}
-      </div>
     </div>
   );
 };
