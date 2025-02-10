@@ -62,6 +62,52 @@ const resources = {
           developedBy: "Developed by João Marcelo Dantas",
           allRightsReserved: "Ezydata © All rights reserved.",
         },
+        landingFeedback: {
+          testimonials: [
+            {
+              quote:
+                "This platform has completely transformed how we work. The efficiency gains are incredible, and the support team is always helpful. Highly recommended!",
+              name: "Alex Thompson",
+              role: "CTO at Tech Innovations",
+              emoji: "😊",
+            },
+            {
+              quote:
+                "The best decision we've made for our workflow. It's intuitive, powerful, and constantly improving. Our productivity has doubled!",
+              name: "Sarah Johnson",
+              role: "Product Manager at Digital Solutions",
+              emoji: "🚀",
+            },
+            {
+              quote:
+                "A game-changer in the industry. The automation features alone have saved us hundreds of hours monthly. Exceptional tool!",
+              name: "Michael Chen",
+              role: "CEO of Future Tech",
+              emoji: "💡",
+            },
+            {
+              quote:
+                "Outstanding service and cutting-edge features. Our team collaboration has never been smoother. Worth every penny!",
+              name: "Emma Wilson",
+              role: "Lead Developer at Code Masters",
+              emoji: "🌟",
+            },
+            {
+              quote:
+                "Revolutionized our client interactions. The analytics dashboard provides insights we never knew we needed. Absolutely brilliant!",
+              name: "David Martinez",
+              role: "Sales Director at Market Leaders",
+              emoji: "📈",
+            },
+            {
+              quote:
+                "The perfect balance between simplicity and powerful features. Our onboarding time reduced by 70% compared to previous tools.",
+              name: "Linda Smith",
+              role: "Operations Manager at Swift Corp",
+              emoji: "⚡",
+            },
+          ],
+        },
       },
 
       deleteModal: {
@@ -138,6 +184,52 @@ const resources = {
         landingFooter: {
           developedBy: "Desenvolvido por João Marcelo Dantas",
           allRightsReserved: "Ezydata © Todos os direitos reservados.",
+        },
+        landingFeedback: {
+          testimonials: [
+            {
+              quote:
+                "Esta plataforma transformou completamente nossa forma de trabalhar. Os ganhos de eficiência são incríveis e a equipe de suporte é sempre prestativa. Altamente recomendado!",
+              name: "Alex Thompson",
+              role: "CTO da Tech Innovations",
+              emoji: "😊",
+            },
+            {
+              quote:
+                "A melhor decisão que tomamos para nosso fluxo de trabalho. É intuitivo, poderoso e está em constante melhoria. Nossa produtividade dobrou!",
+              name: "Sarah Johnson",
+              role: "Gerente de Produto na Digital Solutions",
+              emoji: "🚀",
+            },
+            {
+              quote:
+                "Uma mudança de paradigma no setor. Somente os recursos de automação já nos economizaram centenas de horas por mês. Ferramenta excepcional!",
+              name: "Michael Chen",
+              role: "CEO da Future Tech",
+              emoji: "💡",
+            },
+            {
+              quote:
+                "Serviço excepcional e recursos de ponta. Nossa colaboração em equipe nunca foi tão suave. Vale cada centavo!",
+              name: "Emma Wilson",
+              role: "Desenvolvedora Líder na Code Masters",
+              emoji: "🌟",
+            },
+            {
+              quote:
+                "Revolucionou nossas interações com clientes. O painel de análises fornece insights que nem sabíamos que precisávamos. Absolutamente brilhante!",
+              name: "David Martinez",
+              role: "Diretor de Vendas na Market Leaders",
+              emoji: "📈",
+            },
+            {
+              quote:
+                "O equilíbrio perfeito entre simplicidade e recursos poderosos. Nosso tempo de integração reduziu 70% em comparação com ferramentas anteriores.",
+              name: "Linda Smith",
+              role: "Gerente de Operações na Swift Corp",
+              emoji: "⚡",
+            },
+          ],
         },
       },
 

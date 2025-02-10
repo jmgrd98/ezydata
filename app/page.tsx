@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import LandingContent from "@/components/Landing/LandingContent";
 import LandingVideo from "@/components/Landing/landing-video";
 import LandingFooter from "@/components/Landing/landing-footer";
+import LandingFeedback from "@/components/Landing/landing-feedback";
 
 const LandingPage = () => {
 
@@ -48,6 +49,7 @@ const LandingPage = () => {
       <LandingHero />
       <LandingContent />
       <LandingVideo />
+      <LandingFeedback />
       <LandingFooter />
     </div>
   )
