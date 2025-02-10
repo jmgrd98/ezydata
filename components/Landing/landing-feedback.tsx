@@ -10,12 +10,10 @@ import {
 import Autoplay from "embla-carousel-autoplay"
 import { useTranslation } from 'react-i18next'
 
-// Define type for testimonials
 interface Testimonial {
   quote: string
   name: string
   role: string
-  emoji: string
 }
 
 const LandingFeedback = () => {
@@ -29,7 +27,6 @@ const LandingFeedback = () => {
     })
   );
 
-  // Get testimonials with proper typing
   const testimonials = t('landing.landingFeedback.testimonials', { returnObjects: true }) as Testimonial[];
 
   return (
@@ -45,8 +42,8 @@ const LandingFeedback = () => {
           }}
           onMouseEnter={plugin.current.stop}
           onMouseLeave={(event) => {
-            console.log(event);
-            plugin.current.play();
+            console.log(event)
+            plugin.current.play
           }}
         >
           <CarouselContent className="-ml-4">
@@ -61,8 +58,12 @@ const LandingFeedback = () => {
                       &quot;{testimonial.quote}&quot;
                     </p>
                     <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                        <span className="text-xl">{testimonial.emoji}</span>
+                      <div className="h-12 w-12 rounded-full overflow-hidden">
+                        <img 
+                          src={`/assets/people-testimonials/person${index + 1}.jpg`}
+                          alt={testimonial.name}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold">{testimonial.name}</h3>
