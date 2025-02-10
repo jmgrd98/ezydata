@@ -376,7 +376,7 @@ export default function ProjectPage({ params }: IProjectPageProps) {
       if (currentProject.id) {
         const projectRef = doc(db, 'projects', currentProject.id);
         await updateDoc(projectRef, {
-          name: `Projeto ${projects.length + 1}`,
+          name: currentProject.name,
           table: JSON.stringify(tableData),
           chart: graphData,
           ownerId: user.id,
